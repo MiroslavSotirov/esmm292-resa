@@ -54,8 +54,8 @@ public class MeasurementFilterFramework extends FilterFramework {
 	}
 
 	void writeMeasurementToOutput(Measurement measurement) throws EndOfStreamException {
-		byte[] bytesID = ByteBuffer.allocate(4).putInt(measurement.getId()).array();
-		byte[] bytesMeasurement = ByteBuffer.allocate(8).putLong(measurement.getMeasurement()).array();
+		byte[] bytesID = measurement.getIdAsByteArray();
+		byte[] bytesMeasurement = measurement.getMeasurementAsByteArray();
 
 		for (byte b : bytesID) {
 			WriteFilterOutputPort(b);

@@ -1,5 +1,7 @@
 package task1;
 
+import java.nio.ByteBuffer;
+
 /******************************************************************************************************************
 * File:Measurement.java
 * Description:
@@ -17,7 +19,15 @@ public class Measurement {
 		this.id = id;
 		this.measurement = measurement;
 	}
-	
+
+    public byte[] getIdAsByteArray() {
+        return ByteBuffer.allocate(4).putInt(this.getId()).array();
+    }
+
+    public byte[] getMeasurementAsByteArray() {
+        return ByteBuffer.allocate(8).putLong(this.getMeasurement()).array();
+    }
+
 	public String toString(){
 		return "Measurement with ID: "+id+" and Value: "+measurement;
 	}

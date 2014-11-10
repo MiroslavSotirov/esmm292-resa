@@ -31,7 +31,7 @@ public class Plumber
 		DeleteFilter deleteFilter1 = new DeleteFilter(1);
 		DeleteFilter deleteFilter2 = new DeleteFilter(3);
 		DeleteFilter deleteFilter3 = new DeleteFilter(5);
-		SinkFilter Filter3 = new SinkFilter();
+		SinkFilter Filter3 = new SinkFilter(3);
 
 		/****************************************************************************
 		* Here we connect the filters starting with the sink filter (Filter 1) which
