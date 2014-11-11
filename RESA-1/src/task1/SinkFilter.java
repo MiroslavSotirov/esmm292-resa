@@ -1,68 +1,58 @@
 package task1;
-/******************************************************************************************************************
- * File:SinkFilter.java
- * Course: 17655
- * Project: Assignment 1
- * Copyright: Copyright (c) 2003 Carnegie Mellon University
- * Versions:
- *	1.0 November 2008 - Sample Pipe and Filter code (ajl).
- *
- * Description:
- *
- * This class serves as an example for using the SinkFilterTemplate for creating a sink filter. This particular
- * filter reads some input from the filter's input port and does the following:
- *
- *	1) It parses the input stream and "decommutates" the measurement ID
- *	2) It parses the input steam for measurments and "decommutates" measurements, storing the bits in a long word.
- *
- * This filter illustrates how to convert the byte stream data from the upstream filterinto useable data found in
- * the stream: namely time (long type) and measurements (double type).
- *
- *
- * Parameters: 	None
- *
- * Internal Methods: None
- *
- ******************************************************************************************************************/
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
+
+/**
+ * ***************************************************************************************************************
+ * File:SinkFilter.java
+ * <p/>
+ * Description:
+ * <p/>
+ * This class writes the desired Output in the given Order to the Console.
+ * <p/>
+ * ****************************************************************************************************************
+ */
+
 
 public class SinkFilter extends MeasurementFilterFramework {
 
-    private int numberOfOutputColumns;
+    private int[] orderedIds;
 
     /**
-     * Set the number of Columns to print for File
+     * Set the order of Columns to print to the Console
      *
-     * @param numberOfOutputColumns
+     * @param orderedIds The order of the Ids
      */
-    public SinkFilter(int numberOfOutputColumns) {
+    public SinkFilter(int[] orderedIds) {
         super();
-        this.numberOfOutputColumns = numberOfOutputColumns;
+        this.orderedIds = orderedIds;
+
     }
 
     public void run() {
 
         /**
-         * Initialize the ArrayList for a DataFrame
+         * Initialize the HashMap for a DataFrame
          */
-        ArrayList<Measurement> outputList = new ArrayList<Measurement>();
+        HashMap<Integer, Measurement> outputMap = new HashMap<Integer, Measurement>();
+        Measurement m;
 
         try {
 
             while (true) {
 
-                outputList.add(readMeasurementFromInput());
+                Measurement readMeasurement = readMeasurementFromInput();
+                outputMap.put(readMeasurement.getId(), readMeasurement);
 
-                if (outputList.size() == numberOfOutputColumns) {
-                    for (Measurement m : outputList) {
+                // Print the required Measurements in the given order
+                if (outputMap.size() == orderedIds.length) {
+                    for (int orderedId : orderedIds) {
+                        m = outputMap.get(orderedId);
                         System.out.print(m.getMeasurementAsString());
-                        System.out.print(" ");
+                        System.out.print(",");
                     }
                     System.out.println();
-                    outputList.clear();
+                    outputMap.clear();
                 }
 
             }

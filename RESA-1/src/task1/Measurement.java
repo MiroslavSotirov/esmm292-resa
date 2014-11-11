@@ -22,7 +22,7 @@ public class Measurement {
         super();
         this.id = id;
         this.measurement = measurement;
-        TimeStampFormat = new SimpleDateFormat("YYYY:DD:HH:MM:SS");
+        TimeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
     }
 
     public byte[] getIdAsByteArray() {

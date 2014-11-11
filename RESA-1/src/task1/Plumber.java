@@ -34,7 +34,7 @@ public class Plumber {
         DeleteFilter deleteFilter3 = new DeleteFilter(5);
         FeetToMeterFilter feetToMeterFilter = new FeetToMeterFilter(2);
         FahrenheitToCelsiusFilter fahrenheitToCelsiusFilter = new FahrenheitToCelsiusFilter(4);
-        SinkFilter Filter3 = new SinkFilter(3);
+        SinkFilter Filter3 = new SinkFilter(new int[]{0,4,2});
 
         /****************************************************************************
          * Here we connect the filters starting with the sink filter (Filter 1) which
