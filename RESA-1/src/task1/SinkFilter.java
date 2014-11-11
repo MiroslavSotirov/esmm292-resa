@@ -35,6 +35,7 @@ public class SinkFilter extends MeasurementFilterFramework {
 
     /**
      * Set the number of Columns to print for File
+     *
      * @param numberOfOutputColumns
      */
     public SinkFilter(int numberOfOutputColumns) {
@@ -44,25 +45,23 @@ public class SinkFilter extends MeasurementFilterFramework {
 
     public void run() {
 
-        FileOutputStream stream = null;
+        /**
+         * Initialize the ArrayList for a DataFrame
+         */
         ArrayList<Measurement> outputList = new ArrayList<Measurement>();
 
         try {
-            stream = new FileOutputStream("OutputA.dat");
 
             while (true) {
 
                 outputList.add(readMeasurementFromInput());
 
                 if (outputList.size() == numberOfOutputColumns) {
-
-                    for (Measurement m : outputList){
-                        for (byte b : m.getMeasurementAsByteArray()){
-                            stream.write(b);
-                        }
-                        stream.write('\n');
+                    for (Measurement m : outputList) {
+                        System.out.print(m.getMeasurementAsString());
+                        System.out.print(" ");
                     }
-
+                    System.out.println();
                     outputList.clear();
                 }
 
@@ -70,17 +69,6 @@ public class SinkFilter extends MeasurementFilterFramework {
         } catch (EndOfStreamException e) {
             ClosePorts();
             System.out.println(this.getName() + "::Sink Exiting;");
-        } catch (Exception e) {
-            System.err.println("Cannot write to File");
-            e.printStackTrace();
         }
-        if(stream != null){
-            try {
-                stream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 }

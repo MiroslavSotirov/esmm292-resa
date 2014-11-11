@@ -1,48 +1,103 @@
 package task1;
 
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
-/******************************************************************************************************************
-* File:Measurement.java
-* Description:
-*	Used to hold measurement tuples.
-*
-******************************************************************************************************************/
+/**
+ * ***************************************************************************************************************
+ * File:Measurement.java
+ * Description:
+ * Used to hold measurement tuples.
+ * ****************************************************************************************************************
+ */
 
 public class Measurement {
 
-	private int id;
-	private long measurement;
-	
-	public Measurement(int id, long measurement) {
-		super();
-		this.id = id;
-		this.measurement = measurement;
-	}
+    private int id;
+    private long measurement;
+    private SimpleDateFormat TimeStampFormat;
+
+    public Measurement(int id, long measurement) {
+        super();
+        this.id = id;
+        this.measurement = measurement;
+        TimeStampFormat = new SimpleDateFormat("YYYY:DD:HH:MM:SS");
+    }
 
     public byte[] getIdAsByteArray() {
         return ByteBuffer.allocate(4).putInt(this.getId()).array();
     }
 
+    /**
+     * Will convert the Measurement to ByteArray.
+     * <p/>
+     * The conversion will be done depending on the ID according to the specification
+     * <p/>
+     * ID = 0 will be converted as Timestamp
+     * ID = 1 - 5 will be converted as Double
+     *
+     * @return
+     */
     public byte[] getMeasurementAsByteArray() {
-        return ByteBuffer.allocate(8).putLong(this.getMeasurement()).array();
+        if (id == 0) {
+            return ByteBuffer.allocate(8).putLong(this.getMeasurement()).array();
+        } else {
+            return ByteBuffer.allocate(8).putDouble(this.getMeasurementAsDouble()).array();
+        }
     }
 
-	public String toString(){
-		return "Measurement with ID: "+id+" and Value: "+measurement;
-	}
-	
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
-	public long getMeasurement() {
-		return measurement;
-	}
-	public void setMeasurement(long measurement) {
-		this.measurement = measurement;
-	}
-	
+    public long getMeasurement() {
+        return measurement;
+    }
+
+    /**
+     * This Method returns the Measurement as a String
+     *
+     * @return String
+     */
+    public String getMeasurementAsString() {
+        if (id == 0) {
+            return TimeStampFormat.format(getMeasurementAsCalendar().getTime());
+        } else {
+            return Double.toString(getMeasurementAsDouble());
+        }
+    }
+
+    /**
+     * Returns the Measurement converted to double. This is needed for ID = 1-5
+     *
+     * @return double
+     */
+    public double getMeasurementAsDouble() {
+        return Double.longBitsToDouble(measurement);
+    }
+
+    /**
+     * Returns the Measurement converted to a Calendar instance. This is needed for ID = 0
+     *
+     * @return Calendar
+     */
+    public Calendar getMeasurementAsCalendar() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(measurement);
+        return calendar;
+    }
+
+    public String toString() {
+        return "Measurement with ID: " + id + " and Value: " + getMeasurementAsString();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setMeasurement(long measurement) {
+        this.measurement = measurement;
+    }
+
 }

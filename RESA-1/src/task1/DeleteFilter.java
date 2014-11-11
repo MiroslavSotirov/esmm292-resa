@@ -39,7 +39,7 @@ public class DeleteFilter extends MeasurementFilterFramework {
 		while (true) {
 			try {
 				Measurement measurement = readMeasurementFromInput();
-				System.out.println("DeleteFilter " + id + " " + measurement);
+				//System.out.println("DeleteFilter " + id + " " + measurement);
 				if (measurement.getId() != this.id) {
 					writeMeasurementToOutput(measurement);
 				}
