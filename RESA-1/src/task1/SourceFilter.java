@@ -20,7 +20,7 @@ public class SourceFilter extends MeasurementFilterFramework {
         int bytesread = 0;                    // Number of bytes read from the input file.
         int byteswritten = 0;                // Number of bytes written to the stream.
         DataInputStream in = null;            // File stream reference.
-        byte databyte = 0;                    // The byte of data read from the file
+        byte databyte;                    // The byte of data read from the file
 
         try {
             /***********************************************************************************

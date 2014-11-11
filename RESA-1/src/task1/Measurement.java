@@ -37,7 +37,7 @@ public class Measurement {
      * ID = 0 will be converted as Timestamp
      * ID = 1 - 5 will be converted as Double
      *
-     * @return
+     * @return ByteArray of the Measurement
      */
     public byte[] getMeasurementAsByteArray() {
         if (id == 0) {
