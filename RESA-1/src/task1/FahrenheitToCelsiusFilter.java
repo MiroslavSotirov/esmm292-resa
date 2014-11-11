@@ -37,7 +37,7 @@ public class FahrenheitToCelsiusFilter extends MeasurementFilterFramework {
                     double celsius = ((fahrenheit - 32) * (5 / 9.0));
                     measurement.setMeasurement(Double.doubleToLongBits(celsius));
 
-                    System.out.println("Converting " + fahrenheit + " to " + celsius + " and the new Measurement is:" + measurement);
+                    //System.out.println("Converting " + fahrenheit + " to " + celsius + " and the new Measurement is:" + measurement);
                 }
 
                 writeMeasurementToOutput(measurement);
