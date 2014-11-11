@@ -2,17 +2,17 @@ package task1;
 
 /**
  * ***************************************************************************************************************
- * File:FeetToMeterFilter.java
+ * File:FahrenheitToClesiusFilter.java
  * <p/>
  * Description:
  * <p/>
- * Converts the Measurement with the given Id from feet to meters.
- * The conversion rate we use is: 3.2808 Feet to 1 Meter
+ * Converts the Measurement with the given Id from fahrenheit to celsius.
+ * The conversion rate we use is: ((Fahrenheit - 32) * (5 / 9.0))
  * <p/>
  * ****************************************************************************************************************
  */
 
-public class FeetToMeterFilter extends MeasurementFilterFramework {
+public class FahrenheitToCelsiusFilter extends MeasurementFilterFramework {
     private final int id;
 
     /**
@@ -20,7 +20,7 @@ public class FeetToMeterFilter extends MeasurementFilterFramework {
      *
      * @param id to remove
      */
-    public FeetToMeterFilter(int id) {
+    public FahrenheitToCelsiusFilter(int id) {
         super();
         this.id = id;
     }
@@ -33,11 +33,11 @@ public class FeetToMeterFilter extends MeasurementFilterFramework {
 
                 if (measurement.getId() == this.id) {
 
-                    double feet = measurement.getMeasurementAsDouble();
-                    double meters = feet / 3.2808;
-                    measurement.setMeasurement(Double.doubleToLongBits(meters));
+                    double fahrenheit = measurement.getMeasurementAsDouble();
+                    double celsius = ((fahrenheit - 32) * (5 / 9.0));
+                    measurement.setMeasurement(Double.doubleToLongBits(celsius));
 
-                    //System.out.println("Converting "+feet+" to "+meters+" and the new Measurement is:"+measurement);
+                    System.out.println("Converting " + fahrenheit + " to " + celsius + " and the new Measurement is:" + measurement);
                 }
 
                 writeMeasurementToOutput(measurement);

@@ -33,6 +33,7 @@ public class Plumber {
         DeleteFilter deleteFilter2 = new DeleteFilter(3);
         DeleteFilter deleteFilter3 = new DeleteFilter(5);
         FeetToMeterFilter feetToMeterFilter = new FeetToMeterFilter(2);
+        FahrenheitToCelsiusFilter fahrenheitToCelsiusFilter = new FahrenheitToCelsiusFilter(4);
         SinkFilter Filter3 = new SinkFilter(3);
 
         /****************************************************************************
@@ -41,7 +42,8 @@ public class Plumber {
          * source filter (Filter3).
          ****************************************************************************/
 
-        Filter3.Connect(feetToMeterFilter);
+        Filter3.Connect(fahrenheitToCelsiusFilter);
+        fahrenheitToCelsiusFilter.Connect(feetToMeterFilter);
         feetToMeterFilter.Connect(deleteFilter3);
         deleteFilter3.Connect(deleteFilter2);
         deleteFilter2.Connect(deleteFilter1);
@@ -56,6 +58,7 @@ public class Plumber {
         deleteFilter2.start();
         deleteFilter3.start();
         feetToMeterFilter.start();
+        fahrenheitToCelsiusFilter.start();
         Filter3.start();
 
     } // main
