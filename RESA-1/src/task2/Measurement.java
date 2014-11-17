@@ -1,6 +1,8 @@
 package task2;
 
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -16,13 +18,35 @@ public class Measurement {
 
     private int id;
     private long measurement;
-    private SimpleDateFormat TimeStampFormat;
+    /*
+     * Formatting styles used in the output, the decimal separator is set in the constructor
+     */
+    private static final SimpleDateFormat TimeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
+    private static final DecimalFormat TEMPERATURE_FORMAT = new DecimalFormat("000.00000");
+    private static final DecimalFormat ALTITUDE_FORMAT = new DecimalFormat("000000.00000");
+    private static final DecimalFormat PRESSURE_FORMAT = new DecimalFormat("00.00000");
 
+    /*
+     * The ids used in the stream
+     */
+    public static final int ID_TIME = 0,
+    		ID_VELOCITY = 1,
+    		ID_ALTITUDE = 2,
+    		ID_PRESSURE = 3,
+    		ID_TEMPERATURE = 4,
+    		ID_ATTITUDE = 5,
+    		ID_WILDPOINT= ID_PRESSURE | (1 << 5);
+    
+    
     public Measurement(int id, long measurement) {
         super();
         this.id = id;
         this.measurement = measurement;
-        TimeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
+        DecimalFormatSymbols pointSep = new DecimalFormatSymbols();
+        pointSep.setDecimalSeparator('.');
+        TEMPERATURE_FORMAT.setDecimalFormatSymbols(pointSep);
+        ALTITUDE_FORMAT.setDecimalFormatSymbols(pointSep);
+        PRESSURE_FORMAT.setDecimalFormatSymbols(pointSep);
     }
 
     public Measurement(int id, double measurement) {
@@ -62,14 +86,27 @@ public class Measurement {
      */
     public String getMeasurementAsString() {
     	String representation;
-        if (id == 0) {
+    	switch (id){
+    	case ID_TIME:
             representation = TimeStampFormat.format(getMeasurementAsCalendar().getTime());
-        } else {
+            break;
+    	case ID_ALTITUDE:
+    		representation = ALTITUDE_FORMAT.format(getMeasurementAsDouble());
+    		break;
+    	case ID_PRESSURE:
+    		representation = PRESSURE_FORMAT.format(getMeasurementAsDouble());
+    		break;
+    	case ID_WILDPOINT:
+    		representation = PRESSURE_FORMAT.format(getMeasurementAsDouble()) + "*";
+    		break;
+    	case ID_TEMPERATURE:
+    		representation = TEMPERATURE_FORMAT.format(getMeasurementAsDouble());
+    		break;
+    	default:
         	representation = Double.toString(getMeasurementAsDouble());
-        	if ((id & (1 << 5)) == (1 << 5)){
-        		representation += "*";
-        	}
-        }
+        	break;
+    	}
+    	
         return representation;
     }
 
