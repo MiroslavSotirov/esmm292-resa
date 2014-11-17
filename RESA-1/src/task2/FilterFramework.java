@@ -43,15 +43,15 @@ public class FilterFramework extends Thread
 {
 	// Define filter input and output ports
 
-	private List<PipedInputStream> InputReadPorts = new ArrayList<>();
-	private List<PipedOutputStream> OutputWritePorts = new ArrayList<>();
+	private List<PipedInputStream> InputReadPorts = new ArrayList<PipedInputStream>();
+	private List<PipedOutputStream> OutputWritePorts = new ArrayList<PipedOutputStream>();
 
 	// The following reference to a filter is used because java pipes are able to reliably
 	// detect broken pipes on the input port of the filter. This variable will point to
 	// the previous filter in the network and when it dies, we know that it has closed its
 	// output pipe and will send no more data.
 
-	private List<FilterFramework> InputFilters = new ArrayList<>();
+	private List<FilterFramework> InputFilters = new ArrayList<FilterFramework>();
 	
 	/**
 	 * 

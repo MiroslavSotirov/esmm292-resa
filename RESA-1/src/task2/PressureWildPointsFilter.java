@@ -21,8 +21,8 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
     
     private boolean lookingForValidMeasurement = false;
     private Measurement lastValidPoint;
-    private List<Measurement> frame = new ArrayList<>();
-    private List<Measurement> cache = new ArrayList<>(); 
+    private List<Measurement> frame = new ArrayList<Measurement>();
+    private List<Measurement> cache = new ArrayList<Measurement>();
 
     /**
      * Instantiates a new PressureWildPointsFilter object.
