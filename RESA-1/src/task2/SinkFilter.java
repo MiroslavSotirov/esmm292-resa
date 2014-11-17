@@ -31,11 +31,11 @@ public class SinkFilter extends MeasurementFilterFramework {
 	 * @param orderedIds
 	 *            The order of the Ids
 	 */
-	public SinkFilter(int[] orderedIds) {
+	public SinkFilter(int[] orderedIds, String fileName) {
 		super(1, 1);
 		this.orderedIds = orderedIds;
 
-		file = new File("OutputA.dat");
+		file = new File(fileName);
 
 		try {
 			if (!file.exists()) {

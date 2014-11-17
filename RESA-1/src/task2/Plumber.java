@@ -20,12 +20,13 @@ public class Plumber {
         FeetToMeterFilter feetToMeterFilter = new FeetToMeterFilter(2);
         FahrenheitToCelsiusFilter fahrenheitToCelsiusFilter = new FahrenheitToCelsiusFilter(4);
         PressureWildPointsFilter wildpointsFilter = new PressureWildPointsFilter(3, 10);
-        SinkFilter Filter3 = new SinkFilter(new int[]{0, 4, 2, 3});
-        SinkFilter wildpointsOutput = new SinkFilter(new int[]{0, 3});
+
+        SinkFilter sinkFilter = new SinkFilter(new int[]{0, 4, 2, 3}, "OutputB.dat");
+        SinkFilter wildpointsSinkFilter = new SinkFilter(new int[]{0, 3}, "WildPoints.dat");
 
         // connect the filters to each other
-        Filter3.Connect(wildpointsFilter, 0, 0);
-        wildpointsOutput.Connect(wildpointsFilter, 0, 1);
+        sinkFilter.Connect(wildpointsFilter, 0, 0);
+        wildpointsSinkFilter.Connect(wildpointsFilter, 0, 1);
         wildpointsFilter.Connect(fahrenheitToCelsiusFilter, 0, 0);
         fahrenheitToCelsiusFilter.Connect(feetToMeterFilter, 0, 0);
         feetToMeterFilter.Connect(deleteFilter5, 0, 0);
@@ -39,8 +40,8 @@ public class Plumber {
         feetToMeterFilter.start();
         fahrenheitToCelsiusFilter.start();
         wildpointsFilter.start();
-        Filter3.start();
-        wildpointsOutput.start();
+        sinkFilter.start();
+        wildpointsSinkFilter.start();
 
     }
 }
