@@ -40,7 +40,7 @@ public class LessThanFilter extends MeasurementFilterFramework {
      * A pressure measurement is invalid if it either is negative
      * or the deviation to the last valid value is more then specified.
      * 
-     * @param measurement
+     * @param measurement The measurement that shall be checked
      * @return True if the measurement is valid, false otherwise
      */
     private boolean isValid(Measurement measurement){
@@ -58,8 +58,8 @@ public class LessThanFilter extends MeasurementFilterFramework {
      * If either of the measurements is non-existent, the other is choosen.
      * At least one of the measurements must be existent.
      * 
-     * @param lastValid
-     * @param nextValid
+     * @param lastValid The last valid Measurement
+     * @param nextValid The next valid Measurement
      * @return The interpolated measurement
      */
     private Measurement interpolate(Measurement lastValid, Measurement nextValid){
@@ -99,7 +99,6 @@ public class LessThanFilter extends MeasurementFilterFramework {
                 	if (measurement.getId() == this.id && isValid(measurement)) {
                 		// not looking for valid measurement anymore
                 		lookingForValidMeasurement = false;
-                		Measurement nextValidPoint = measurement;
                 		// process cache
                 		for (Measurement cached : cache) {
                         	if (cached.getId() == 0) {
@@ -111,7 +110,7 @@ public class LessThanFilter extends MeasurementFilterFramework {
                         				writeMeasurementToOutput(m, 1);
                         			} else if (m.getId() == this.id) {
                         				// TODO add asterisk
-                        				writeMeasurementToOutput(interpolate(lastValidPoint, nextValidPoint), 0);
+                        				writeMeasurementToOutput(interpolate(lastValidPoint, measurement), 0);
                         				writeMeasurementToOutput(m, 1);
                         			} else {
                         				writeMeasurementToOutput(m, 0);
