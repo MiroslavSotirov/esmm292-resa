@@ -21,13 +21,13 @@ public class MergeFilter extends MeasurementFilterFramework {
     }
 
     /**
-     * This method gets the last measurement and writes it to
+     * This method writes the given measuremtn to the output.
+     * If a new measurement of the corresponding Input port is available we will return that. Else we return null.
+     * <p/>
      *
-     * TODO: Write Comment
-     *
-     * @param measurement
-     * @param portID
-     * @return
+     * @param measurement the measurement to be outputted
+     * @param portID      the port of the measurement
+     * @return the next measurement or if none available we will return null
      */
     private Measurement forward(Measurement measurement, int portID) {
         try {
@@ -50,27 +50,29 @@ public class MergeFilter extends MeasurementFilterFramework {
             measurementA = readMeasurementFromInput(0);
             measurementB = readMeasurementFromInput(1);
 
-        while (true)   
-            
-				if (measurementA == null && measurementB == null) {
-					break;
-				} else if (measurementA == null) {
-					measurementB = forward(measurementB, 1);
-				} else if (measurementB == null) {
-					measurementA = forward(measurementA, 0);
-				} else if (measurementA.getMeasurementAsCalendar().compareTo(
-						measurementB.getMeasurementAsCalendar()) <= 0) {
-					measurementA = forward(measurementA, 0);
-				} else {
-					measurementB = forward(measurementB, 1);
-				}
-			}
+            while (true) {
 
-		} catch (EndOfStreamException e) {
-			ClosePorts();
-			System.out.print("\n" + this.getName() + "::WildPoints Exiting;");
-		}
+                /**
+                 * Here we check which measurement shall be forwarded by comparing the dates of each measurement
+                 */
+                if (measurementA == null && measurementB == null) {
+                    break;
+                } else if (measurementA == null) {
+                    measurementB = forward(measurementB, 1);
+                } else if (measurementB == null) {
+                    measurementA = forward(measurementA, 0);
+                } else if (measurementA.getMeasurementAsCalendar().compareTo(
+                        measurementB.getMeasurementAsCalendar()) <= 0) {
+                    measurementA = forward(measurementA, 0);
+                } else {
+                    measurementB = forward(measurementB, 1);
+                }
+            }
 
-	} // run
+        } catch (EndOfStreamException e) {
+            ClosePorts();
+            System.out.print("\n" + this.getName() + "::WildPoints Exiting;");
+        }
 
-} // MiddleFilter
+    }
+}
