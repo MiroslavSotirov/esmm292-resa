@@ -54,14 +54,14 @@ public class MergeFilter extends MeasurementFilterFramework {
 				if (measurementA == null && measurementB == null) {
 					break;
 				} else if (measurementA == null) {
-					forward(measurementA, 0);
+					measurementB = forward(measurementB, 0);
 				} else if (measurementB == null) {
-					forward(measurementB, 0);
+					measurementA = forward(measurementA, 0);
 				} else if (measurementA.getMeasurementAsCalendar().compareTo(
 						measurementB.getMeasurementAsCalendar()) <= 0) {
-					forward(measurementA, 0);
+					measurementA = forward(measurementA, 0);
 				} else {
-					forward(measurementB, 0);
+					measurementB = forward(measurementB, 0);
 				}
 			}
 
