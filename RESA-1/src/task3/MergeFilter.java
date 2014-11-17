@@ -2,74 +2,75 @@ package task3;
 
 /**
  * *****************************************************************************
- * ********************************** File:WildPointsFilter.java
+ * File: MergeFilter.java
  * <p/>
  * Description:
  * <p/>
- * This filters pressure wildpoints in the data. The wildpoints are replaced by
- * interpolated values. The original value of the wildpoint is send to a
- * separate pipe together with the timestamp.
+ * Merges two Inputs and sorts them by Date.
  * <p/>
  * *****************************************************************************
- * ***********************************
  */
 
 public class MergeFilter extends MeasurementFilterFramework {
 
-	/**
-	 * Instantiates a new PressureWildPointsFilter object.
-	 *
-	 * @param id
-	 *            The id of the pressure data
-	 * @param deviation
-	 *            The maximum deviation for valid measurements
-	 */
-	public MergeFilter() {
-		super(2, 1);
-	}
-	
-	private Measurement forward(Measurement measurement, int portID){
-		try {
-			do {
-				writeMeasurementToOutput(measurement);
-				measurement = readMeasurementFromInput(portID);
-			} while (measurement.getId() != 0);
-		} catch (EndOfStreamException e) {
-			return null;
-		}
-		return measurement;
-	}
+    /**
+     * Instantiates a new MergeFilter object.
+     */
+    public MergeFilter() {
+        super(2, 1);
+    }
 
-	public void run() {
-		// TODO breaks if one source has no measurements
-		Measurement measurementA;
-		Measurement measurementB;
+    /**
+     * This method gets the last measurement and writes it to
+     *
+     * TODO: Write Comment
+     *
+     * @param measurement
+     * @param portID
+     * @return
+     */
+    private Measurement forward(Measurement measurement, int portID) {
+        try {
+            do {
+                writeMeasurementToOutput(measurement);
+                measurement = readMeasurementFromInput(portID);
+            } while (measurement.getId() != 0);
+        } catch (EndOfStreamException e) {
+            return null;
+        }
+        return measurement;
+    }
 
-		try {
-			measurementA = readMeasurementFromInput(0);
-			measurementB = readMeasurementFromInput(1);
+    public void run() {
+        // TODO breaks if one source has no measurements
+        Measurement measurementA;
+        Measurement measurementB;
 
-			while (true) {
+        try {
+            measurementA = readMeasurementFromInput(0);
+            measurementB = readMeasurementFromInput(1);
 
-				if (measurementA == null && measurementB == null) {
-					break;
-				} else if (measurementA == null) {
-					measurementB = forward(measurementB, 0);
-				} else if (measurementB == null) {
-					measurementA = forward(measurementA, 0);
-				} else if (measurementA.getMeasurementAsCalendar().compareTo(
-						measurementB.getMeasurementAsCalendar()) <= 0) {
-					measurementA = forward(measurementA, 0);
-				} else {
-					measurementB = forward(measurementB, 0);
-				}
-			}
+            while (true) {
 
-		} catch (EndOfStreamException e) {
-			ClosePorts();
-			System.out.print("\n" + this.getName() + "::WildPoints Exiting;");
-		}
+                if (measurementA == null && measurementB == null) {
+                    break;
+                } else if (measurementA == null) {
+                    measurementB = forward(measurementB, 0);
+                } else if (measurementB == null) {
+                    measurementA = forward(measurementA, 0);
+                } else if (measurementA.getMeasurementAsCalendar().compareTo(
+                        measurementB.getMeasurementAsCalendar()) <= 0) {
+                    measurementA = forward(measurementA, 0);
+                } else {
+                    measurementB = forward(measurementB, 0);
+                }
+            }
 
-	} // run
+        } catch (EndOfStreamException e) {
+            ClosePorts();
+            System.out.print("\n" + this.getName() + "::WildPoints Exiting;");
+        }
+
+    } // run
 
 } // MiddleFilter
