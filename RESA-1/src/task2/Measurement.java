@@ -61,11 +61,16 @@ public class Measurement {
      * @return String
      */
     public String getMeasurementAsString() {
+    	String representation;
         if (id == 0) {
-            return TimeStampFormat.format(getMeasurementAsCalendar().getTime());
+            representation = TimeStampFormat.format(getMeasurementAsCalendar().getTime());
         } else {
-            return Double.toString(getMeasurementAsDouble());
+        	representation = Double.toString(getMeasurementAsDouble());
+        	if ((id & (1 << 5)) == (1 << 5)){
+        		representation += "*";
+        	}
         }
+        return representation;
     }
 
     /**

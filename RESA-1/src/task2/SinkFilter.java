@@ -68,9 +68,16 @@ public class SinkFilter extends MeasurementFilterFramework {
 
 				// Print the required Measurements in the given order
 				if (outputMap.size() == orderedIds.length) {
-					for (int orderedId : orderedIds) {
+					for (int i = 0; i < orderedIds.length; i++) {
+						int orderedId = orderedIds[i];
 						m = outputMap.get(orderedId);
-						outputString+= m.getMeasurementAsString() + ","; 
+						if (m == null){
+							m = outputMap.get(orderedId | (1 << 5));
+						}
+						outputString+= m.getMeasurementAsString();
+						if (i < orderedIds.length -1){
+							outputString += ',';
+						}
 					}
 					bw.write(outputString);
 					bw.newLine();

@@ -17,12 +17,13 @@ import java.util.List;
 
 public class PressureWildPointsFilter extends MeasurementFilterFramework {
     private final int id;
+    private final int interpolateId;
     private final double deviation;
     
     private boolean lookingForValidMeasurement = false;
     private Measurement lastValidPoint;
-    private List<Measurement> frame = new ArrayList<Measurement>();
-    private List<Measurement> cache = new ArrayList<Measurement>();
+    private List<Measurement> frame = new ArrayList<>();
+    private List<Measurement> cache = new ArrayList<>(); 
 
     /**
      * Instantiates a new PressureWildPointsFilter object.
@@ -33,6 +34,7 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
     public PressureWildPointsFilter(int id, double deviation) {
         super(1, 2);
         this.id = id;
+        interpolateId = id | (1 << 5);
         this.deviation = deviation;
     }
     
@@ -66,11 +68,11 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
     	if(lastValid == null && nextValid == null){
     		throw new NullPointerException("lastValid and nextValid are null");
     	} else if(lastValid == null){
-    		return new Measurement(nextValid.getId(), nextValid.getMeasurementAsDouble());
+    		return new Measurement(interpolateId, nextValid.getMeasurementAsDouble());
     	} else if(nextValid == null){
-    		return new Measurement(lastValid.getId(), lastValid.getMeasurementAsDouble());
+    		return new Measurement(interpolateId, lastValid.getMeasurementAsDouble());
     	} else {
-    		return new Measurement(lastValid.getId(), (lastValid.getMeasurementAsDouble() + nextValid.getMeasurementAsDouble()) / 2);
+    		return new Measurement(interpolateId, (lastValid.getMeasurementAsDouble() + nextValid.getMeasurementAsDouble()) / 2);
     	}
     }
 
