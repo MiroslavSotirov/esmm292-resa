@@ -5,12 +5,20 @@ import java.util.List;
 
 /**
  * ***************************************************************************************************************
- * File:WildPointsFilter.java
+ * File:PressureWildPointsFilter.java
  * <p/>
  * Description:
  * <p/>
- * This filters pressure wildpoints in the data. The wildpoints are replaced by interpolated values.
+ * This Filter filters pressure wildpoints in the data. The wildpoints are replaced by interpolated values.
  * The original value of the wildpoint is send to a separate pipe together with the timestamp.
+ * <p/>
+ * A wild point is any pressure data that varies more than 10PSI between samples
+ * and/or is negative.For wild points encountered in the stream, extrapolate a replacement value
+ * by using the last known valid measurement and the next valid measurement in the stream.
+ * Extrapolate the replacement value by computing the average of the last valid measurement and
+ * the next valid measurement in the stream. If a wild point occurs at the beginning of the stream,
+ * replace it with the first valid value; if a wild point occurs at the end of the stream, replace it with
+ * the last valid value.
  * <p/>
  * ****************************************************************************************************************
  */
@@ -58,8 +66,8 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
      * If either of the measurements is non-existent, the other is choosen.
      * At least one of the measurements must be existent.
      * 
-     * @param lastValid
-     * @param nextValid
+     * @param lastValid the last valid measurement
+     * @param nextValid the next valid measurement
      * @return The interpolated measurement
      */
     private Measurement interpolate(Measurement lastValid, Measurement nextValid){
