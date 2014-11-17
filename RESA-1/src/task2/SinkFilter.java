@@ -1,5 +1,9 @@
 package task2;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -16,49 +20,73 @@ import java.util.HashMap;
 
 public class SinkFilter extends MeasurementFilterFramework {
 
-    private int[] orderedIds;
+	private int[] orderedIds;
+	File file;
+	FileWriter fw;
+	BufferedWriter bw;
 
-    /**
-     * Set the order of Columns to print to the Console
-     *
-     * @param orderedIds The order of the Ids
-     */
-    public SinkFilter(int[] orderedIds) {
-        super(1, 1);
-        this.orderedIds = orderedIds;
+	/**
+	 * Set the order of Columns to print to the Console
+	 *
+	 * @param orderedIds
+	 *            The order of the Ids
+	 */
+	public SinkFilter(int[] orderedIds) {
+		super(1, 1);
+		this.orderedIds = orderedIds;
 
-    }
+		file = new File("OutputA.dat");
 
-    public void run() {
+		try {
+			if (!file.exists()) {
+				file.createNewFile();
+			} else {
+			}
+			fw = new FileWriter(file.getAbsoluteFile());
+			bw = new BufferedWriter(fw);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-        /**
-         * Initialize the HashMap for a DataFrame
-         */
-        HashMap<Integer, Measurement> outputMap = new HashMap<Integer, Measurement>();
-        Measurement m;
+	}
 
-        try {
+	public void run() {
 
-            while (true) {
+		/**
+		 * Initialize the HashMap for a DataFrame
+		 */
+		HashMap<Integer, Measurement> outputMap = new HashMap<Integer, Measurement>();
+		Measurement m;
+		String outputString = "";
 
-                Measurement readMeasurement = readMeasurementFromInput();
-                outputMap.put(readMeasurement.getId(), readMeasurement);
+		try {
 
-                // Print the required Measurements in the given order
-                if (outputMap.size() == orderedIds.length) {
-                    for (int orderedId : orderedIds) {
-                        m = outputMap.get(orderedId);
-                        System.out.print(m.getMeasurementAsString());
-                        System.out.print(",");
-                    }
-                    System.out.println();
-                    outputMap.clear();
-                }
+			while (true) {
 
-            }
-        } catch (EndOfStreamException e) {
-            ClosePorts();
-            System.out.println(this.getName() + "::Sink Exiting;");
-        }
-    }
+				Measurement readMeasurement = readMeasurementFromInput();
+				outputMap.put(readMeasurement.getId(), readMeasurement);
+
+				// Print the required Measurements in the given order
+				if (outputMap.size() == orderedIds.length) {
+					for (int orderedId : orderedIds) {
+						m = outputMap.get(orderedId);
+						outputString+= m.getMeasurementAsString() + ","; 
+					}
+					bw.write(outputString);
+					bw.newLine();
+					outputString = "";
+					outputMap.clear();
+				}
+
+			}
+		} catch (EndOfStreamException | IOException e) {
+			ClosePorts();
+			try {
+				bw.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			System.out.println(this.getName() + "::Sink Exiting;");
+		}
+	}
 }
