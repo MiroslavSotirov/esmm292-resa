@@ -13,7 +13,6 @@ package task2;
 public class Plumber {
     public static void main(String argv[]) {
 
-        // instantiate three filters.
         SourceFilter sourceFilter = new SourceFilter();
         DeleteFilter deleteFilter1 = new DeleteFilter(1);
         DeleteFilter deleteFilter5 = new DeleteFilter(5);

@@ -13,7 +13,6 @@ package task3;
 public class Plumber {
     public static void main(String argv[]) {
 
-        // instantiate three filters.
         SourceFilter sourceFilterA = new SourceFilter("SubSetA.dat");
         SourceFilter sourceFilterB = new SourceFilter("SubSetB.dat");
         MergeFilter mergeFilter = new MergeFilter();
