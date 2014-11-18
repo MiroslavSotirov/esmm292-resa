@@ -1,5 +1,15 @@
 package task2;
 
+/**
+ * ***************************************************************************************************************
+ * File:MeasurementFilterFramework.java
+ * <p/>
+ * Description:
+ * <p/>
+ * This Class extends the FilterFramework to be able to read and write Measurements to the pipes.
+ * <p/>
+ * ****************************************************************************************************************
+ */
 public class MeasurementFilterFramework extends FilterFramework {
 
     public MeasurementFilterFramework(int inputs, int outputs) {
@@ -12,7 +22,7 @@ public class MeasurementFilterFramework extends FilterFramework {
     Measurement readMeasurementFromInput() throws EndOfStreamException {
     	return readMeasurementFromInput(0);
     }
-    
+
     Measurement readMeasurementFromInput(int portID) throws EndOfStreamException {
         byte databyte;                // This is the data byte read from the stream
 
@@ -59,7 +69,7 @@ public class MeasurementFilterFramework extends FilterFramework {
     void writeMeasurementToOutput(Measurement measurement) {
     	writeMeasurementToOutput(measurement, 0);
     }
-    
+
     void writeMeasurementToOutput(Measurement measurement, int portID) {
         byte[] bytesID = measurement.getIdAsByteArray();
         byte[] bytesMeasurement = measurement.getMeasurementAsByteArray();

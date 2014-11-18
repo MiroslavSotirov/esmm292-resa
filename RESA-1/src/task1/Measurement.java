@@ -11,6 +11,8 @@ import java.util.Calendar;
  * File:Measurement.java
  * Description:
  * Used to hold measurement tuples.
+ *
+ * Does all the relevant to represent a measurement in the correct way, according to its id.
  * ****************************************************************************************************************
  */
 
@@ -36,8 +38,13 @@ public class Measurement {
     		ID_TEMPERATURE = 4,
     		ID_ATTITUDE = 5,
     		ID_WILDPOINT= ID_PRESSURE | (1 << 5);
-    
-    
+
+    /**
+     * Instantiates a Measurement object with the given id and measurement value.
+     *
+     * @param id The id
+     * @param measurement The measurement value
+     */
     public Measurement(int id, long measurement) {
         super();
         this.id = id;
@@ -49,13 +56,15 @@ public class Measurement {
         PRESSURE_FORMAT.setDecimalFormatSymbols(pointSep);
     }
 
+    /**
+     * Instantiates a Measurement object with the given id and measurement value.
+     *
+     * @param id The id
+     * @param measurement The measurement value
+     */
     public Measurement(int id, double measurement) {
 		this(id, Double.doubleToLongBits(measurement));
 	}
-
-	public byte[] getIdAsByteArray() {
-        return ByteBuffer.allocate(4).putInt(this.getId()).array();
-    }
 
     /**
      * Will convert the Measurement to ByteArray.
@@ -80,9 +89,13 @@ public class Measurement {
     }
 
     /**
-     * This Method returns the Measurement as a String
+     * This method returns the Measurement as a String according to its id.
+     * This method is different from the toString method,
+     * as the toString method is used for debugging the the values of the object.
      *
-     * @return String
+     * This method only returns the value of the measurement.
+     *
+     * @return String value of the measurement
      */
     public String getMeasurementAsString() {
     	String representation;
@@ -130,9 +143,29 @@ public class Measurement {
         return calendar;
     }
 
+    /**
+     * This method will convert the id to a 4byte long array representation.
+     *
+     * @return The id as byte[]
+     */
+    public byte[] getIdAsByteArray() {
+        return ByteBuffer.allocate(4).putInt(this.getId()).array();
+    }
+
+    /**
+     * This method returns a String representation of the current object.
+     *
+     * This method is used for debugging purposes.
+     *
+     * @return Object as String
+     */
     public String toString() {
         return "Measurement with ID: " + id + " and Value: " + getMeasurementAsString();
     }
+
+    /*
+     * We skip obvious comments for getters and setters...
+     */
 
     public int getId() {
         return id;

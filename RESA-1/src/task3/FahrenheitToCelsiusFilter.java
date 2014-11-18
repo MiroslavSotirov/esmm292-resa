@@ -25,6 +25,10 @@ public class FahrenheitToCelsiusFilter extends MeasurementFilterFramework {
         this.id = id;
     }
 
+    /**
+     * Converts the Measurement with the given Id from fahrenheit to celsius.
+     */
+    @Override
     public void run() {
 
         while (true) {
@@ -32,12 +36,9 @@ public class FahrenheitToCelsiusFilter extends MeasurementFilterFramework {
                 Measurement measurement = readMeasurementFromInput();
 
                 if (measurement.getId() == this.id) {
-
                     double fahrenheit = measurement.getMeasurementAsDouble();
                     double celsius = ((fahrenheit - 32) * (5 / 9.0));
                     measurement.setMeasurement(Double.doubleToLongBits(celsius));
-
-                    //System.out.println("Converting " + fahrenheit + " to " + celsius + " and the new Measurement is:" + measurement);
                 }
 
                 writeMeasurementToOutput(measurement);
@@ -48,6 +49,5 @@ public class FahrenheitToCelsiusFilter extends MeasurementFilterFramework {
             }
         }
 
-    } // run
-
-} // MiddleFilter
+    }
+}

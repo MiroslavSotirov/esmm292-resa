@@ -12,7 +12,7 @@ import java.util.HashMap;
  * <p/>
  * Description:
  * <p/>
- * This class writes the desired Output in the given Order to the Console.
+ * This class writes the desired Output in the given Order to a File.
  * <p/>
  * ****************************************************************************************************************
  */

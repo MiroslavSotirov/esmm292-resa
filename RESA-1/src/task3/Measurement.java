@@ -11,6 +11,8 @@ import java.util.Calendar;
  * File:Measurement.java
  * Description:
  * Used to hold measurement tuples.
+ * <p/>
+ * Does all the relevant to represent a measurement in the correct way, according to its id.
  * ****************************************************************************************************************
  */
 
@@ -30,14 +32,19 @@ public class Measurement {
      * The ids used in the stream
      */
     public static final int ID_TIME = 0,
-    		ID_VELOCITY = 1,
-    		ID_ALTITUDE = 2,
-    		ID_PRESSURE = 3,
-    		ID_TEMPERATURE = 4,
-    		ID_ATTITUDE = 5,
-    		ID_WILDPOINT= ID_PRESSURE | (1 << 5);
-    
-    
+            ID_VELOCITY = 1,
+            ID_ALTITUDE = 2,
+            ID_PRESSURE = 3,
+            ID_TEMPERATURE = 4,
+            ID_ATTITUDE = 5,
+            ID_WILDPOINT = ID_PRESSURE | (1 << 5);
+
+    /**
+     * Instantiates a Measurement object with the given id and measurement value.
+     *
+     * @param id          The id
+     * @param measurement The measurement value
+     */
     public Measurement(int id, long measurement) {
         super();
         this.id = id;
@@ -49,12 +56,14 @@ public class Measurement {
         PRESSURE_FORMAT.setDecimalFormatSymbols(pointSep);
     }
 
+    /**
+     * Instantiates a Measurement object with the given id and measurement value.
+     *
+     * @param id          The id
+     * @param measurement The measurement value
+     */
     public Measurement(int id, double measurement) {
-		this(id, Double.doubleToLongBits(measurement));
-	}
-
-	public byte[] getIdAsByteArray() {
-        return ByteBuffer.allocate(4).putInt(this.getId()).array();
+        this(id, Double.doubleToLongBits(measurement));
     }
 
     /**
@@ -80,33 +89,37 @@ public class Measurement {
     }
 
     /**
-     * This Method returns the Measurement as a String
+     * This method returns the Measurement as a String according to its id.
+     * This method is different from the toString method,
+     * as the toString method is used for debugging the the values of the object.
+     * <p/>
+     * This method only returns the value of the measurement.
      *
-     * @return String
+     * @return String value of the measurement
      */
     public String getMeasurementAsString() {
-    	String representation;
-    	switch (id){
-    	case ID_TIME:
-            representation = TimeStampFormat.format(getMeasurementAsCalendar().getTime());
-            break;
-    	case ID_ALTITUDE:
-    		representation = ALTITUDE_FORMAT.format(getMeasurementAsDouble());
-    		break;
-    	case ID_PRESSURE:
-    		representation = PRESSURE_FORMAT.format(getMeasurementAsDouble());
-    		break;
-    	case ID_WILDPOINT:
-    		representation = PRESSURE_FORMAT.format(getMeasurementAsDouble()) + "*";
-    		break;
-    	case ID_TEMPERATURE:
-    		representation = TEMPERATURE_FORMAT.format(getMeasurementAsDouble());
-    		break;
-    	default:
-        	representation = Double.toString(getMeasurementAsDouble());
-        	break;
-    	}
-    	
+        String representation;
+        switch (id) {
+            case ID_TIME:
+                representation = TimeStampFormat.format(getMeasurementAsCalendar().getTime());
+                break;
+            case ID_ALTITUDE:
+                representation = ALTITUDE_FORMAT.format(getMeasurementAsDouble());
+                break;
+            case ID_PRESSURE:
+                representation = PRESSURE_FORMAT.format(getMeasurementAsDouble());
+                break;
+            case ID_WILDPOINT:
+                representation = PRESSURE_FORMAT.format(getMeasurementAsDouble()) + "*";
+                break;
+            case ID_TEMPERATURE:
+                representation = TEMPERATURE_FORMAT.format(getMeasurementAsDouble());
+                break;
+            default:
+                representation = Double.toString(getMeasurementAsDouble());
+                break;
+        }
+
         return representation;
     }
 
@@ -130,9 +143,29 @@ public class Measurement {
         return calendar;
     }
 
+    /**
+     * This method will convert the id to a 4byte long array representation.
+     *
+     * @return The id as byte[]
+     */
+    public byte[] getIdAsByteArray() {
+        return ByteBuffer.allocate(4).putInt(this.getId()).array();
+    }
+
+    /**
+     * This method returns a String representation of the current object.
+     * <p/>
+     * This method is used for debugging purposes.
+     *
+     * @return Object as String
+     */
     public String toString() {
         return "Measurement with ID: " + id + " and Value: " + getMeasurementAsString();
     }
+
+    /*
+     * We skip obvious comments for getters and setters...
+     */
 
     public int getId() {
         return id;

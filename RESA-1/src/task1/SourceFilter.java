@@ -5,6 +5,7 @@ package task1;
  * Description:
  *
  * This class loads the data from the FlightData.dat
+ * This basically equals the given class.
  *
  ******************************************************************************************************************/
 

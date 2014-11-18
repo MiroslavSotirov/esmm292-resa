@@ -25,6 +25,9 @@ public class FeetToMeterFilter extends MeasurementFilterFramework {
         this.id = id;
     }
 
+    /**
+     * Converts the Measurement with the given Id from feet to meters.
+     */
     public void run() {
 
         while (true) {
@@ -32,12 +35,9 @@ public class FeetToMeterFilter extends MeasurementFilterFramework {
                 Measurement measurement = readMeasurementFromInput();
 
                 if (measurement.getId() == this.id) {
-
                     double feet = measurement.getMeasurementAsDouble();
                     double meters = feet / 3.2808;
                     measurement.setMeasurement(Double.doubleToLongBits(meters));
-
-                    //System.out.println("Converting "+feet+" to "+meters+" and the new Measurement is:"+measurement);
                 }
 
                 writeMeasurementToOutput(measurement);
@@ -48,6 +48,5 @@ public class FeetToMeterFilter extends MeasurementFilterFramework {
             }
         }
 
-    } // run
-
-} // MiddleFilter
+    }
+}
