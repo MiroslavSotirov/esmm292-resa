@@ -40,7 +40,6 @@ public class SinkFilter extends MeasurementFilterFramework {
         try {
             if (!file.exists()) {
                 file.createNewFile();
-            } else {
             }
             fw = new FileWriter(file.getAbsoluteFile());
             bw = new BufferedWriter(fw);
