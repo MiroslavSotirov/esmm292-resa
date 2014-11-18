@@ -14,7 +14,7 @@ public class Plumber {
     public static void main(String argv[]) {
 
         // instantiate three filters.
-        SourceFilter Filter1 = new SourceFilter();
+        SourceFilter sourceFilter = new SourceFilter();
         DeleteFilter deleteFilter1 = new DeleteFilter(1);
         DeleteFilter deleteFilter5 = new DeleteFilter(5);
         FeetToMeterFilter feetToMeterFilter = new FeetToMeterFilter(2);
@@ -31,10 +31,10 @@ public class Plumber {
         fahrenheitToCelsiusFilter.Connect(feetToMeterFilter, 0, 0);
         feetToMeterFilter.Connect(deleteFilter5, 0, 0);
         deleteFilter5.Connect(deleteFilter1, 0, 0);
-        deleteFilter1.Connect(Filter1, 0, 0);
+        deleteFilter1.Connect(sourceFilter, 0, 0);
 
         // start the filters
-        Filter1.start();
+        sourceFilter.start();
         deleteFilter1.start();
         deleteFilter5.start();
         feetToMeterFilter.start();

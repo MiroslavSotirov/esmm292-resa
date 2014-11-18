@@ -14,30 +14,30 @@ public class Plumber {
     public static void main(String argv[]) {
 
         // instantiate three filters.
-        SourceFilter Filter1 = new SourceFilter();
+        SourceFilter sourceFilter = new SourceFilter();
         DeleteFilter deleteFilter1 = new DeleteFilter(1);
         DeleteFilter deleteFilter3 = new DeleteFilter(3);
         DeleteFilter deleteFilter5 = new DeleteFilter(5);
         FeetToMeterFilter feetToMeterFilter = new FeetToMeterFilter(2);
         FahrenheitToCelsiusFilter fahrenheitToCelsiusFilter = new FahrenheitToCelsiusFilter(4);
-        SinkFilter Filter3 = new SinkFilter(new int[]{0, 4, 2});
+        SinkFilter sinkFilter = new SinkFilter(new int[]{0, 4, 2});
 
         // connect the filters to each other
-        Filter3.Connect(fahrenheitToCelsiusFilter);
+        sinkFilter.Connect(fahrenheitToCelsiusFilter);
         fahrenheitToCelsiusFilter.Connect(feetToMeterFilter);
         feetToMeterFilter.Connect(deleteFilter5);
         deleteFilter5.Connect(deleteFilter3);
         deleteFilter3.Connect(deleteFilter1);
-        deleteFilter1.Connect(Filter1);
+        deleteFilter1.Connect(sourceFilter);
 
         // start the filters
-        Filter1.start();
+        sourceFilter.start();
         deleteFilter1.start();
         deleteFilter3.start();
         deleteFilter5.start();
         feetToMeterFilter.start();
         fahrenheitToCelsiusFilter.start();
-        Filter3.start();
+        sinkFilter.start();
 
     }
 }
