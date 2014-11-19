@@ -44,7 +44,7 @@ public class FahrenheitToCelsiusFilter extends MeasurementFilterFramework {
                 writeMeasurementToOutput(measurement);
             } catch (EndOfStreamException e) {
                 ClosePorts();
-                System.out.print("\n" + this.getName() + "::Delete Exiting;");
+                System.out.print("\n" + this.getName() + "::FarenheitToCelcius Exiting;");
                 break;
             }
         }

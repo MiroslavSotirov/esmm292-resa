@@ -26,10 +26,11 @@ public class SinkFilter extends MeasurementFilterFramework {
 	BufferedWriter bw;
 
 	/**
-	 * Set the order of Columns to print to the Console
+	 * Set the order of Columns to print
 	 *
 	 * @param orderedIds
 	 *            The order of the Ids
+	 * @param fileName to write to
 	 */
 	public SinkFilter(int[] orderedIds, String fileName) {
 		super(1, 1);
@@ -64,7 +65,7 @@ public class SinkFilter extends MeasurementFilterFramework {
 
 				Measurement readMeasurement = readMeasurementFromInput();
 				outputMap.put(readMeasurement.getId(), readMeasurement);
-
+				
 				// Print the required Measurements in the given order
 				if (outputMap.size() == orderedIds.length) {
 					for (int i = 0; i < orderedIds.length; i++) {
@@ -87,12 +88,15 @@ public class SinkFilter extends MeasurementFilterFramework {
 			}
 		} catch (EndOfStreamException | IOException e) {
 			ClosePorts();
+			System.out.println("\n" + this.getName() + "::Sink Exiting;");
+		} finally {
 			try {
-				bw.close();
+				if (bw != null){
+					bw.close();
+				}
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			System.out.println(this.getName() + "::Sink Exiting;");
 		}
 	}
 }

@@ -25,137 +25,136 @@ import java.util.List;
 
 public class PressureWildPointsFilter extends MeasurementFilterFramework {
     private final int id;
+    private final int interpolateId;
     private final double deviation;
-    
-    private boolean lookingForValidMeasurement = false;
-    private Measurement lastValidPoint;
-    private List<Measurement> frame = new ArrayList<Measurement>();
-    private List<Measurement> cache = new ArrayList<Measurement>();
+
+    /**
+     * The cache of the filter, it's used to store the data with the exception of
+     * the valid pressure measurements. Any pressure measurement in this list will be interpolated.
+     */
+    private List<Measurement> cache = new ArrayList<>();
 
     /**
      * Instantiates a new PressureWildPointsFilter object.
      *
-     * @param id The id of the pressure data
+     * @param id        The id of the pressure data
      * @param deviation The maximum deviation for valid measurements
      */
     public PressureWildPointsFilter(int id, double deviation) {
         super(1, 2);
         this.id = id;
+        interpolateId = id | (1 << 5);
         this.deviation = deviation;
     }
-    
+
     /**
      * A pressure measurement is invalid if it either is negative
      * or the deviation to the last valid value is more then specified.
-     * 
+     *
      * @param measurement The measurement that shall be checked
      * @return True if the measurement is valid, false otherwise
      */
-    private boolean isValid(Measurement measurement){
-    	if(measurement.getMeasurementAsDouble() < 0){
-    		return false;
-    	}
-    	if(lastValidPoint != null){
-    		return Math.abs(measurement.getMeasurementAsDouble() - lastValidPoint.getMeasurementAsDouble()) <= deviation;
-    	}
-    	return true;
-    }
-    
+    private boolean isValid(Measurement lastValidPoint, Measurement measurement) {
+        if (measurement.getMeasurementAsDouble() < 0) {
+            return false;
+        } // if
+        if (lastValidPoint != null) {
+            return Math.abs(measurement.getMeasurementAsDouble() - lastValidPoint.getMeasurementAsDouble()) <= deviation;
+        } // if
+        return true;
+    } // isValid
+
     /**
      * Interpolates between the last and next valid measurement.
      * If either of the measurements is non-existent, the other is choosen.
      * At least one of the measurements must be existent.
-     * 
+     *
      * @param lastValid the last valid measurement
      * @param nextValid the next valid measurement
      * @return The interpolated measurement
      */
-    private Measurement interpolate(Measurement lastValid, Measurement nextValid){
-    	if(lastValid == null && nextValid == null){
-    		throw new NullPointerException("lastValid and nextValid are null");
-    	} else if(lastValid == null){
-    		return new Measurement(nextValid.getId(), nextValid.getMeasurementAsDouble());
-    	} else if(nextValid == null){
-    		return new Measurement(lastValid.getId(), lastValid.getMeasurementAsDouble());
-    	} else {
-    		return new Measurement(lastValid.getId(), (lastValid.getMeasurementAsDouble() + nextValid.getMeasurementAsDouble()) / 2);
-    	}
-    }
-
+    private Measurement interpolate(Measurement lastValid, Measurement nextValid) {
+        if (lastValid == null && nextValid == null) {
+            throw new NullPointerException("lastValid and nextValid are null");
+        } else if (lastValid == null) {
+            return new Measurement(interpolateId, nextValid.getMeasurementAsDouble());
+        } else if (nextValid == null) {
+            return new Measurement(interpolateId, lastValid.getMeasurementAsDouble());
+        } else {
+            return new Measurement(interpolateId, (lastValid.getMeasurementAsDouble() + nextValid.getMeasurementAsDouble()) / 2);
+        } // if
+    } // interpolate
+    
+    /**
+     * Processes the cache, interpolating all pressure points with the {@link #lastValidPoint} and
+     * given next valid point. <br><br>
+     * <em>Clears the cache after forwarding it!</em>
+     * @param validMeasurement next valid measurement
+     */
+    private void processCache(Measurement lastValidPoint, Measurement validMeasurement){
+    	for (Measurement m : cache){
+    		if (m.getId() == Measurement.ID_TIME){
+    			writeMeasurementToOutput(m, 0);
+    			writeMeasurementToOutput(m, 1);
+    		} else if (m.getId() == this.id){
+    			Measurement interpolated = interpolate(lastValidPoint, validMeasurement);
+    			writeMeasurementToOutput(interpolated, 0);
+    			writeMeasurementToOutput(m, 1);
+    		} else {
+    			writeMeasurementToOutput(m);
+    		}
+    	} // for: cache
+    	
+    	if (validMeasurement != null){
+    		writeMeasurementToOutput(validMeasurement);
+    	} // if
+    	
+    	cache.clear();
+    } // processCache
+    
     public void run() {
 
+    	/*
+    	 * Iterates over the input steam and reads non-pressure measurements into a cache to retain 
+    	 * them if the pressure value is invalid.
+    	 * If a non-valid pressure is found it's also added to the cache.
+    	 * If a valid measurement is found the current cache is forwarded to the output streams
+    	 * though the processCache procedure. 
+    	 * 
+    	 * All non-valid pressures must be added to the cache.
+    	 * Valid pressures must not be added to the cache.
+    	 */
+    	Measurement lastValidPoint = null;
         while (true) {
             try {
-            	// TODO handle case when last pressure point is invalid
                 Measurement measurement = readMeasurementFromInput();
-                
-                /****************************************************************
-                 * This code stores the complete frame.
-                 * If the pressure measurement is valid, the frame is written
-                 * to the first output port.
-                 * If the pressure measurement is invalid, the input port is
-                 * forwarded into a cache until the next valid pressure data
-                 * is read. Then the current frame and the frames in the cache
-                 * are processed. The frames are written to the first output
-                 * port. The invalid pressure measurements are replaced and
-                 * the original values are written (together with the timestamp)
-                 * to the second output port.
-                 ***************************************************************/
-                
-                if (lookingForValidMeasurement) {
-            		cache.add(measurement);
-                	if (measurement.getId() == this.id && isValid(measurement)) {
-                		// not looking for valid measurement anymore
-                		lookingForValidMeasurement = false;
-                		// process cache
-                		for (Measurement cached : cache) {
-                        	if (cached.getId() == 0) {
-                        		// write the complete frame to the first output port
-                        		// timestamp and the wildpoint are also written to the second output port
-                        		for(Measurement m : frame){
-                        			if(m.getId() == 0){
-                        				writeMeasurementToOutput(m, 0);
-                        				writeMeasurementToOutput(m, 1);
-                        			} else if (m.getId() == this.id) {
-                        				// TODO add asterisk
-                        				writeMeasurementToOutput(interpolate(lastValidPoint, measurement), 0);
-                        				writeMeasurementToOutput(m, 1);
-                        			} else {
-                        				writeMeasurementToOutput(m, 0);
-                        			}
-                        		}
-                        		frame.clear();
-                        	}
-                    		frame.add(cached);
-                		}
-                		cache.clear();
-                	}
-                } else {
-                	if (measurement.getId() == 0) {
-                		// write frame to first output port
-                		for (Measurement m : frame) {
-                			writeMeasurementToOutput(m, 0);
-                		}
-                		frame.clear();
+
+                if (measurement.getId() == this.id){
+                	if (isValid(lastValidPoint, measurement)){
+                		// flushing the cache with the current valid point
+                		processCache(lastValidPoint, measurement);
+                		lastValidPoint = measurement;
                 	} else {
-                		if (measurement.getId() == this.id) {
-                			if (isValid(measurement)) {
-                				lastValidPoint = measurement;
-                			} else {
-                				lookingForValidMeasurement = true;
-                			}
-                		}
-                	}
-            		frame.add(measurement);
-                }
+                		// cache the wild point
+                    	cache.add(measurement);
+                	} // if
+                } else {
+                	// cache the remaining data
+                	cache.add(measurement);
+                } // if
+
 
             } catch (EndOfStreamException e) {
+            	/*
+            	 * Flush the remaining cache
+            	 */
+            	processCache(lastValidPoint, null);
                 ClosePorts();
                 System.out.print("\n" + this.getName() + "::WildPoints Exiting;");
                 break;
-            }
+            } // try
         }
 
     } // run
 
-} // MiddleFilter
+} // PressureWildPointsFilter
