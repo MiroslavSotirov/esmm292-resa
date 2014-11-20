@@ -1,0 +1,118 @@
+ \documentclass[11pt,a4paper,titlepage,landscape]{article}
+ \usepackage[utf8x]{inputenc}
+ \usepackage{ucs}
+ \usepackage{amsmath}
+ \usepackage{amsfonts}
+ \usepackage{amssymb}
+ \usepackage{makeidx}
+ \usepackage[german]{babel}
+ \usepackage{eurosym}
+ \usepackage{pdfpages}
+ \usepackage{graphicx}
+ \usepackage{lscape}
+ \usepackage{pgf}
+ \usepackage{enumerate}
+ \usepackage{tikz}
+ \usetikzlibrary{arrows,calc,automata}
+ \setlength{\parindent}{0em}
+ \usepackage[paper=a4paper,left=15mm,right=15mm,top=20mm,bottom=20mm]{geometry}
+ %\DeclareGraphicsRule{*}{mps}{*}{}
+ \usepackage{standalone}
+ \author{}
+ \begin{document}
+ \def\mynode#1#2#3{ \draw let \p1=(#1.east) in
+ node[draw]  (#2) at ({\x1 + 40},\y1) {#3}
+ }
+ \def\myVertiNode#1#2#3{ \draw 
+ 	let \p1=(#1.south west) in
+ node[draw]  (#2) at ({\x1},{\y1 - 45}) {#3}
+ }
+ \def\myEmptyVertiNode#1#2#3{ \draw[minimum width=1.5cm] 
+ 	let \p1=(#1.south west) in
+ node  (#2) at ({\x1},{\y1 - 45}) {#3}
+ }
+ \def\height{2cm}
+ \begin{tikzpicture}[->,>=stealth',shorten >=1pt,semithick, auto,node distance=3.5cm, rectangle, align=center, anchor=west, minimum height=\height]
+ %	\draw[<-](0,0) -- +(0,15)node[above]{$A1$};
+ \node[draw] (source) at (0,0) {SourceFilter};
+ 
+ \mynode{source}{del1}{Delete Id 1};
+ \mynode{del1}{del5}{Delete Id 5};
+ \mynode{del5}{ftm}{FeetToMeter};
+ 
+ %\myVertiNode{source}{ergebnis}{Ergebnisse \\ analysieren};
+ \mynode{ftm}{ftc}{FahrenheitToCelcius};
+ \mynode{ftc}{sink}{SinkFilter};
+ 
+ \path[draw] (source) -> (del1);
+ \path[draw]	(del1) -> (del5);
+ \path[draw]	(del5) -> (ftm);
+
+ \path[draw] (ftm) -> (ftc);
+ \path[draw] (ftc) -> (sink);
+ \end{tikzpicture}
+ 
+ \vspace*{2cm}
+ 
+  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,semithick, auto,node distance=3.5cm, rectangle, align=center, anchor=west, minimum height=\height]
+  %	\draw[<-](0,0) -- +(0,15)node[above]{$A1$};
+  \node[draw] (source) at (0,0) {SourceFilter};
+  
+  \mynode{source}{del1}{Delete Id 1};
+  \mynode{del1}{del5}{Delete Id 5};
+  \mynode{del5}{ftm}{FeetToMeter};
+  
+  
+  %\myVertiNode{source}{ergebnis}{Ergebnisse \\ analysieren};
+  \mynode{ftm}{ftc}{FahrenheitToCelcius};
+  \mynode{ftc}{psi}{PressureWildPoints};
+
+  \mynode{psi}{sink}{SinkFilter};
+  \myVertiNode{sink}{psiSink}{WildPointSink};
+    
+  \path[draw] (source) -> (del1);
+  \path[draw]	(del1) -> (del5);
+  \path[draw]	(del5) -> (ftm);
+ 
+  \path[draw] (ftm) -> (ftc);
+  \path[draw] (ftc) -> (psi);
+  \path[draw] (psi) -> (sink);
+  \path[draw] (psi) -> (psiSink);
+  \end{tikzpicture}
+  
+\pagebreak
+ \vspace*{2cm}
+ 
+ \begin{tikzpicture}[->,>=stealth',shorten >=1pt,semithick, auto,node distance=3.5cm, rectangle, align=center, anchor=west, minimum height=\height]
+  %	\draw[<-](0,0) -- +(0,15)node[above]{$A1$};
+  \node[draw] (source) at (0,0) {Source A};
+  \myEmptyVertiNode{source}{middle}{};
+  \myVertiNode{middle}{source2}{Source B};
+
+    
+  \mynode{middle}{merge}{MergeFilter};  
+  \mynode{merge}{lt10}{LessThan10k};
+
+  \mynode{lt10}{ftm}{FeetToMeter};
+  
+  
+  %\myVertiNode{source}{ergebnis}{Ergebnisse \\ analysieren};
+  \mynode{ftm}{ftc}{FahrenheitToCelcius};
+  \mynode{ftc}{psi}{PressureWildPoints};
+
+  \mynode{psi}{sink}{SinkFilter};
+  \myVertiNode{sink}{psiSink}{WildPointSink};
+  \myVertiNode{psiSink}{lt10Sink}{LessThan10kSink};
+      
+  \path[draw] (source) -> (merge);
+  \path[draw] (source2) -> (merge);
+  \path[draw] (merge) -> (lt10);
+
+  \path[draw]	(lt10) -> (ftm);
+ \path[draw] 	(lt10.south) -> (lt10Sink);
+  \path[draw] (ftm) -> (ftc);
+  \path[draw] (ftc) -> (psi);
+  \path[draw] (psi) -> (sink);
+  \path[draw] (psi) -> (psiSink);
+  \end{tikzpicture}
+ \end{document}
