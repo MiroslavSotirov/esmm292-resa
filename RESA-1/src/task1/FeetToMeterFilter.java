@@ -43,7 +43,7 @@ public class FeetToMeterFilter extends MeasurementFilterFramework {
                 writeMeasurementToOutput(measurement);
             } catch (EndOfStreamException e) {
                 ClosePorts();
-                System.out.print("\n" + this.getName() + "::Delete Exiting;");
+                System.out.print("\n" + this.getName() + "::FeetToMeter Exiting;");
                 break;
             }
         }

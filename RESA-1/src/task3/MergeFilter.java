@@ -21,7 +21,7 @@ public class MergeFilter extends MeasurementFilterFramework {
     }
 
     /**
-     * This method writes the given measuremtn to the output.
+     * This method writes the given measurement to the output.
      * If a new measurement of the corresponding Input port is available we will return that. Else we return null.
      * <p/>
      *
@@ -42,7 +42,6 @@ public class MergeFilter extends MeasurementFilterFramework {
     }
 
     public void run() {
-        // TODO breaks if one source has no measurements
         Measurement measurementA;
         Measurement measurementB;
 
@@ -71,7 +70,7 @@ public class MergeFilter extends MeasurementFilterFramework {
 
         } catch (EndOfStreamException e) {
             ClosePorts();
-            System.out.print("\n" + this.getName() + "::WildPoints Exiting;");
+            System.out.print("\n" + this.getName() + "::MergeFilter Exiting;");
         }
 
     }
