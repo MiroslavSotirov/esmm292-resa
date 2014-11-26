@@ -49,6 +49,7 @@ public class Measurement {
         super();
         this.id = id;
         this.measurement = measurement;
+        // set the decimal separator to a point to archive locale independence for the output.
         DecimalFormatSymbols pointSep = new DecimalFormatSymbols();
         pointSep.setDecimalSeparator('.');
         TEMPERATURE_FORMAT.setDecimalFormatSymbols(pointSep);

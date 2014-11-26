@@ -23,7 +23,7 @@ public class DeleteFilter extends MeasurementFilterFramework {
      * @param id of measurement to remove
      */
     public DeleteFilter(int id) {
-        super(1, 1);
+        super();
         this.id = id;
     }
 

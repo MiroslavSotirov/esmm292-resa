@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class SourceFilter extends MeasurementFilterFramework {
 	
-	private String fileName = "FlightData.dat";
+	private final String fileName;
 	
     public SourceFilter(String fileName) {
 		super(1, 1);

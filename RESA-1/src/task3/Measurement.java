@@ -11,7 +11,7 @@ import java.util.Calendar;
  * File:Measurement.java
  * Description:
  * Used to hold measurement tuples.
- * <p/>
+ *
  * Does all the relevant to represent a measurement in the correct way, according to its id.
  * ****************************************************************************************************************
  */
@@ -37,18 +37,19 @@ public class Measurement {
             ID_PRESSURE = 3,
             ID_TEMPERATURE = 4,
             ID_ATTITUDE = 5,
-            ID_WILDPOINT = ID_PRESSURE | (1 << 5);
+            ID_WILDPOINT= ID_PRESSURE | (1 << 5);
 
     /**
      * Instantiates a Measurement object with the given id and measurement value.
      *
-     * @param id          The id
+     * @param id The id
      * @param measurement The measurement value
      */
     public Measurement(int id, long measurement) {
         super();
         this.id = id;
         this.measurement = measurement;
+        // set the decimal separator to a point to archive locale independence for the output.
         DecimalFormatSymbols pointSep = new DecimalFormatSymbols();
         pointSep.setDecimalSeparator('.');
         TEMPERATURE_FORMAT.setDecimalFormatSymbols(pointSep);
@@ -59,7 +60,7 @@ public class Measurement {
     /**
      * Instantiates a Measurement object with the given id and measurement value.
      *
-     * @param id          The id
+     * @param id The id
      * @param measurement The measurement value
      */
     public Measurement(int id, double measurement) {
@@ -92,14 +93,14 @@ public class Measurement {
      * This method returns the Measurement as a String according to its id.
      * This method is different from the toString method,
      * as the toString method is used for debugging the the values of the object.
-     * <p/>
+     *
      * This method only returns the value of the measurement.
      *
      * @return String value of the measurement
      */
     public String getMeasurementAsString() {
         String representation;
-        switch (id) {
+        switch (id){
             case ID_TIME:
                 representation = TimeStampFormat.format(getMeasurementAsCalendar().getTime());
                 break;
@@ -154,7 +155,7 @@ public class Measurement {
 
     /**
      * This method returns a String representation of the current object.
-     * <p/>
+     *
      * This method is used for debugging purposes.
      *
      * @return Object as String

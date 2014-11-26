@@ -5,7 +5,6 @@ package task1;
  * Description:
  *
  * This class loads the data from the FlightData.dat
- * This basically equals the given class.
  *
  ******************************************************************************************************************/
 
@@ -15,9 +14,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class SourceFilter extends MeasurementFilterFramework {
-    public void run() {
+	
+	private final String fileName;
+	
+    public SourceFilter(String fileName) {
+		super(1, 1);
+		this.fileName = fileName;
+	}
 
-        String fileName = "FlightData.dat";    // Input data file.
+	public void run() {
+
         int bytesread = 0;                    // Number of bytes read from the input file.
         int byteswritten = 0;                // Number of bytes written to the stream.
         DataInputStream in = null;            // File stream reference.

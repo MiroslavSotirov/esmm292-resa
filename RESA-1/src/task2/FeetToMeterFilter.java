@@ -21,7 +21,7 @@ public class FeetToMeterFilter extends MeasurementFilterFramework {
      * @param id to remove
      */
     public FeetToMeterFilter(int id) {
-        super(1, 1);
+        super();
         this.id = id;
     }
 
@@ -43,7 +43,7 @@ public class FeetToMeterFilter extends MeasurementFilterFramework {
                 writeMeasurementToOutput(measurement);
             } catch (EndOfStreamException e) {
                 ClosePorts();
-                System.out.print("\n" + this.getName() + "::FeetToMeter Exiting;");
+                System.out.print("\n" + this.getName() + "::Delete Exiting;");
                 break;
             }
         }

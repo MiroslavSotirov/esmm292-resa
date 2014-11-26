@@ -13,7 +13,7 @@ package task2;
 public class Plumber {
     public static void main(String argv[]) {
 
-        SourceFilter sourceFilter = new SourceFilter();
+        SourceFilter sourceFilter = new SourceFilter("FlightData.dat");
         DeleteFilter deleteFilter1 = new DeleteFilter(1);
         DeleteFilter deleteFilter5 = new DeleteFilter(5);
         FeetToMeterFilter feetToMeterFilter = new FeetToMeterFilter(2);

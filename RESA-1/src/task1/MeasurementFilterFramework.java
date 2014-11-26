@@ -12,73 +12,87 @@ package task1;
  */
 public class MeasurementFilterFramework extends FilterFramework {
 
-    final int MEASUREMENT_LENGTH = 8;    // This is the length of all measurements (including time) in bytes
-    final int ID_LENGTH = 4;                // This is the length of IDs in the byte stream
+	public MeasurementFilterFramework(int inputs, int outputs) 
+	{
+		super(inputs, outputs);
+	}
 
-    /**
-     * This method read a measurement from the input pipe and returns it
-     *
-     * @return input from the pipe
-     * @throws EndOfStreamException If there is no more data from the pipe
-     */
-    Measurement readMeasurementFromInput() throws EndOfStreamException {
-        byte databyte;                // This is the data byte read from the stream
+	public MeasurementFilterFramework(){
+		super(1, 1);
+	}
 
-        long measurement;                // This is the word used to store all measurements - conversions are illustrated.
-        int id;                            // This is the measurement id
+	final int MEASUREMENT_LENGTH = 8;   // This is the length of all measurements (including time) in bytes
+	final int ID_LENGTH = 4;            // This is the length of IDs in the byte stream
 
-        try {
-            id = 0;
+	Measurement readMeasurementFromInput() throws EndOfStreamException
+	{
+		return readMeasurementFromInput(0);
+	}
 
-            for (int i = 0; i < ID_LENGTH; i++) {
-                databyte = ReadFilterInputPort();    // This is where we read the byte from the stream...
+	Measurement readMeasurementFromInput(int portID) throws EndOfStreamException
+	{
+		byte databyte;                // This is the data byte read from the stream
 
-                id = id | (databyte & 0xFF);        // We append the byte on to ID...
+		long measurement;             // This is the word used to store all measurements
+		int id;                       // This is the measurement id
 
-                if (i != ID_LENGTH - 1)                // If this is not the last byte, then slide the
-                {                                    // previously appended byte to the left by one byte
-                    id = id << 8;                    // to make room for the next byte we append to the ID
+		try 
+		{
+			id = 0;
 
-                } // if
+			for (int i = 0; i < ID_LENGTH; i++)
+			{
+				databyte = ReadFilterInputPort(portID); // This is where we read the byte from the stream...
 
-            } // for
+				id = id | (databyte & 0xFF);            // We append the byte on to ID...
 
-            measurement = 0;
+				if (i != ID_LENGTH - 1)                 // If this is not the last byte, then slide the
+				{                                       // previously appended byte to the left by one byte
+					id = id << 8;                       // to make room for the next byte we append to the ID
 
-            for (int i = 0; i < MEASUREMENT_LENGTH; i++) {
-                databyte = ReadFilterInputPort();
-                measurement = measurement | (databyte & 0xFF);    // We append the byte on to measurement...
+				} // if
 
-                if (i != MEASUREMENT_LENGTH - 1)                    // If this is not the last byte, then slide the
-                {                                                // previously appended byte to the left by one byte
-                    measurement = measurement << 8;                // to make room for the next byte we append to the
-                    // measurement
-                } // if
+			} // for
 
-            } // if
+			measurement = 0;
 
-            return new Measurement(id, measurement);
-        } catch (Exception e) {
-            throw new EndOfStreamException("Stream ended unexpectedly.");
-        }
+			for (int i = 0; i < MEASUREMENT_LENGTH; i++)
+			{
+				databyte = ReadFilterInputPort(portID);
+				measurement = measurement | (databyte & 0xFF);  // We append the byte on to measurement...
 
-    }
+				if (i != MEASUREMENT_LENGTH - 1)                // If this is not the last byte, then slide the
+				{                                               // previously appended byte to the left by one byte
+					measurement = measurement << 8;             // to make room for the next byte we append to the
+				} // if
 
-    /**
-     * This method writes the measurement to the output pipe
-     * @param measurement The measurement to be written
-     */
-    void writeMeasurementToOutput(Measurement measurement) {
-        byte[] bytesID = measurement.getIdAsByteArray();
-        byte[] bytesMeasurement = measurement.getMeasurementAsByteArray();
+			} // if
 
-        for (byte b : bytesID) {
-            WriteFilterOutputPort(b);
-        }
+			return new Measurement(id, measurement);
+		} catch (Exception e) 
+		{
+			throw new EndOfStreamException("Stream ended unexpectedly.");
+		}
 
-        for (byte b : bytesMeasurement) {
-            WriteFilterOutputPort(b);
-        }
-    }
+	}
+
+	void writeMeasurementToOutput(Measurement measurement)
+	{
+		writeMeasurementToOutput(measurement, 0);
+	}
+
+	void writeMeasurementToOutput(Measurement measurement, int portID)
+	{
+		byte[] bytesID = measurement.getIdAsByteArray();
+		byte[] bytesMeasurement = measurement.getMeasurementAsByteArray();
+
+		for (byte b : bytesID) {
+			WriteFilterOutputPort(b, portID);
+		}
+
+		for (byte b : bytesMeasurement) {
+			WriteFilterOutputPort(b, portID);
+		}
+	}
 
 }

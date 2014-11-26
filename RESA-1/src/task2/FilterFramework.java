@@ -100,7 +100,8 @@ public class FilterFramework extends Thread
 	*
 	* Arguments:
 	* 	FilterFramework - this is the filter that this filter will connect to.
-	*
+	*	inputPortID - the input port of this filter
+	*	outputPortId - the output port of this filter
 	* Returns: void
 	*
 	* Exceptions: IOException
@@ -132,6 +133,28 @@ public class FilterFramework extends Thread
 
 		} // catch
 
+	} // Connect
+
+	/***************************************************************************
+	* CONCRETE METHOD:: Connect
+	* Purpose: This method connects filters to each other. All connections are
+	* through the inputport of each filter. That is each filter's inputport is
+	* connected to another filter's output port through this method.
+	* 
+	* This is equivalent with {@link #Connect(FilterFramework, int, int)} 
+	* with (filter, 0, 0).
+	*
+	* Arguments:
+	* 	FilterFramework - this is the filter that this filter will connect to.
+	* Returns: void
+	*
+	* Exceptions: IOException
+	*
+	****************************************************************************/
+
+	void Connect( FilterFramework Filter )
+	{
+		Connect(Filter, 0, 0);
 	} // Connect
 
 	/***************************************************************************

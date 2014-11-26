@@ -7,14 +7,15 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * ***************************************************************************************************************
+ ****************************************************************************************************************
  * File:SinkFilter.java
  * <p/>
  * Description:
  * <p/>
- * This class writes the desired Output in the given Order to the Console.
+ * This class writes the desired Output in the given order to a file, denoted by the filename.
+ * If the filename is <code>null</code> System.out will be used.
  * <p/>
- * ****************************************************************************************************************
+ *****************************************************************************************************************
  */
 
 
@@ -30,24 +31,26 @@ public class SinkFilter extends MeasurementFilterFramework {
 	 *
 	 * @param orderedIds
 	 *            The order of the Ids
-	 * @param fileName to write to
+	 * @param fileName to write to or <code>null</code> if System.out is desired.
 	 */
 	public SinkFilter(int[] orderedIds, String fileName) {
 		super(1, 1);
 		this.orderedIds = orderedIds;
 
-		file = new File(fileName);
+		if (fileName != null){
 
-		try {
-			if (!file.exists()) {
-				file.createNewFile();
+			file = new File(fileName);
+
+			try {
+				if (!file.exists()) {
+					file.createNewFile();
+				}
+				fw = new FileWriter(file.getAbsoluteFile());
+				bw = new BufferedWriter(fw);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			fw = new FileWriter(file.getAbsoluteFile());
-			bw = new BufferedWriter(fw);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
-
 	}
 
 	public void run() {
@@ -79,8 +82,12 @@ public class SinkFilter extends MeasurementFilterFramework {
 							outputString += ',';
 						}
 					}
-					bw.write(outputString);
-					bw.newLine();
+					if (bw == null){
+						System.out.println(outputString);
+					} else {
+						bw.write(outputString);
+						bw.newLine();
+					}
 					outputString = "";
 					outputMap.clear();
 				}

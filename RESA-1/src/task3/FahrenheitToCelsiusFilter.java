@@ -21,7 +21,7 @@ public class FahrenheitToCelsiusFilter extends MeasurementFilterFramework {
      * @param id to remove
      */
     public FahrenheitToCelsiusFilter(int id) {
-        super(1, 1);
+        super();
         this.id = id;
     }
 
@@ -44,7 +44,7 @@ public class FahrenheitToCelsiusFilter extends MeasurementFilterFramework {
                 writeMeasurementToOutput(measurement);
             } catch (EndOfStreamException e) {
                 ClosePorts();
-                System.out.print("\n" + this.getName() + "::FarenheitToCelcius Exiting;");
+                System.out.print("\n" + this.getName() + "::Delete Exiting;");
                 break;
             }
         }

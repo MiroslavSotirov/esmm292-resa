@@ -14,13 +14,13 @@ public class Plumber {
     public static void main(String argv[]) {
 
         // instantiate three filters.
-        SourceFilter sourceFilter = new SourceFilter();
+        SourceFilter sourceFilter = new SourceFilter("FlightData.dat");
         DeleteFilter deleteFilter1 = new DeleteFilter(1);
         DeleteFilter deleteFilter3 = new DeleteFilter(3);
         DeleteFilter deleteFilter5 = new DeleteFilter(5);
         FeetToMeterFilter feetToMeterFilter = new FeetToMeterFilter(2);
         FahrenheitToCelsiusFilter fahrenheitToCelsiusFilter = new FahrenheitToCelsiusFilter(4);
-        SinkFilter sinkFilter = new SinkFilter(new int[]{0, 4, 2});
+        SinkFilter sinkFilter = new SinkFilter(new int[]{0, 4, 2}, "OutputA.dat");
 
         // connect the filters to each other
         sinkFilter.Connect(fahrenheitToCelsiusFilter);

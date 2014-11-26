@@ -20,7 +20,7 @@ public class Plumber {
         PressureWildPointsFilter wildpointsFilter = new PressureWildPointsFilter(3, 10);
 
         SinkFilter sinkFilter = new SinkFilter(new int[]{0, 1, 2, 3, 4, 5}, "OutputC.dat");
-        SinkFilter wildpointsSinkFilter = new SinkFilter(new int[]{0, 3}, "WildPoints.dat");
+        SinkFilter wildpointsSinkFilter = new SinkFilter(new int[]{0, 3}, "PressureWildPoints.dat");
         SinkFilter less10kSinkFilter = new SinkFilter(new int[]{0, 1, 2, 3, 4, 5}, "LessThan10K.dat");
 
         // connect the filters to each other
