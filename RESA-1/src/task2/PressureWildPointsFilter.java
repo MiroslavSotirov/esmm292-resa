@@ -101,11 +101,11 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
      * <em>Clears the cache after forwarding it!</em>
      * @param validMeasurement next valid measurement
      */
-    private void processCache(Measurement lastValidPoint, Measurement validMeasurement, boolean extrapolating){
+    private void processCache(Measurement lastValidPoint, Measurement validMeasurement, int wildPoints){
     	for (Measurement m : cache){
     		if (m.getId() == Measurement.ID_TIME){
     			writeMeasurementToOutput(m, 0);
-    			if (extrapolating){
+    			if (wildPoints > 0){
     				writeMeasurementToOutput(m, 1);
     			}
     		} else if (m.getId() == this.id){
@@ -113,9 +113,11 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
     			Measurement extrapolated = extrapolate(lastValidPoint, validMeasurement);
     			writeMeasurementToOutput(extrapolated, 0);
     			writeMeasurementToOutput(m, 1);
+    			wildPoints--;
     		} else {
     			writeMeasurementToOutput(m);
     		}
+
     	} // for: cache
     	
     	if (validMeasurement != null){
@@ -126,7 +128,6 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
     } // processCache
     
     public void run() {
-
     	/*
     	 * Iterates over the input steam and reads non-pressure measurements into a cache to retain 
     	 * them if the pressure value is invalid.
@@ -139,7 +140,7 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
     	 */
     	Measurement lastValidPoint = null;
     	// if an invalid point is found we're in the state extrapolating
-    	boolean extrapolating = false;
+    	int wildPoints = 0;
         while (true) {
             try {
                 Measurement measurement = readMeasurementFromInput();
@@ -147,13 +148,13 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
                 if (measurement.getId() == this.id){
                 	if (isValid(lastValidPoint, measurement)){
                 		// flushing the cache with the current valid point
-                		processCache(lastValidPoint, measurement, extrapolating);
+                		processCache(lastValidPoint, measurement, wildPoints);
                 		lastValidPoint = measurement;
-                		extrapolating = false;
+                		wildPoints = 0;
                 	} else {
                 		// cache the wild point
                     	cache.add(measurement);
-                    	extrapolating = true;
+                    	wildPoints++;
                 	} // if
                 } else {
                 	// cache the remaining data
@@ -165,13 +166,12 @@ public class PressureWildPointsFilter extends MeasurementFilterFramework {
             	/*
             	 * Flush the remaining cache
             	 */
-            	processCache(lastValidPoint, null, extrapolating);
+            	processCache(lastValidPoint, null, wildPoints);
                 ClosePorts();
                 System.out.print("\n" + this.getName() + "::WildPoints Exiting;");
                 break;
             } // try
         }
-
     } // run
 
 } // PressureWildPointsFilter
