@@ -59,8 +59,18 @@ public class LessThanFilter extends MeasurementFilterFramework {
                 frame.add(measurement);
 
             } catch (EndOfStreamException e) {
+            	if (!frame.isEmpty()){
+                    int port = 0;
+                    if (lessThanLimit) {
+                        port = 1;
+                    }
+                    for (Measurement m : frame) {
+                        writeMeasurementToOutput(m, port);
+                    }
+                    frame.clear();
+            	}
                 ClosePorts();
-                System.out.print("\n" + this.getName() + "::WildPoints Exiting;");
+                System.out.print("\n" + this.getName() + "::LessThanFilter Exiting;");
                 break;
             }
         }
