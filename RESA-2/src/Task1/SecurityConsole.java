@@ -83,6 +83,7 @@ public class SecurityConsole
                 {
                     // Here we arm the system
                     Monitor.ArmSystem(true);
+                    SystemArmed = true;
 
                 } // if
 
@@ -92,6 +93,7 @@ public class SecurityConsole
                 {
                     // Here we unarm the system
                     Monitor.ArmSystem(false);
+                    SystemArmed = false;
 
                 } // if
 

@@ -141,7 +141,7 @@ class SecurityMonitor extends Thread
 				} // catch
 
 				// If there are messages in the queue, we read through them.
-				// We are looking for MessageIDs = 3,4, or 5.
+				// We are looking for MessageIDs = 6,7, or 8.
 				// Message IDs of 3 are WindowBreaks
 				// Message IDs of 4 are DoorBreaks
                 // Message IDs of 5 are MotionDetections
@@ -157,7 +157,7 @@ class SecurityMonitor extends Thread
 				{
 					Msg = eq.GetMessage();
 
-                    if ( Msg.GetMessageId() == 3 ) // WindowBreak
+                    if ( Msg.GetMessageId() == 6 ) // WindowBreak
                     {
                         try
                         {
@@ -173,7 +173,7 @@ class SecurityMonitor extends Thread
 
                     } // if
 
-                    if ( Msg.GetMessageId() == 4 ) // DoorBreak
+                    if ( Msg.GetMessageId() == 7 ) // DoorBreak
                     {
                         try
                         {
@@ -189,7 +189,7 @@ class SecurityMonitor extends Thread
 
                     } // if
 
-                    if ( Msg.GetMessageId() == 5 ) // MotionDetection
+                    if ( Msg.GetMessageId() == 8 ) // MotionDetection
                     {
                         try
                         {
