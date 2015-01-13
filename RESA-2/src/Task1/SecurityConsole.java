@@ -73,8 +73,12 @@ public class SecurityConsole
 				System.out.println( "Select an Option: \n" );
 				System.out.println( "1: Arm the system" );
 				System.out.println( "2: Unarm the system" );
-                System.out.println( "W1: Activate Window Break" );
-                System.out.println( "W0: Deactivate Window Break" );
+                System.out.println( "W1: Activate Window Break Alarm" );
+                System.out.println( "W0: Deactivate Window Break Alarm" );
+                System.out.println( "D1: Activate Door Break Alarm" );
+                System.out.println( "D0: Deactivate Door Break Alarm" );
+                System.out.println( "M1: Activate Motion Detection Alarm" );
+                System.out.println( "M0: Deactivate Motion Detection Alarm" );
 				System.out.println( "X: Stop System\n" );
 				System.out.print( "\n>>>> " );
 				Option = UserInput.KeyboardReadString();
@@ -114,6 +118,42 @@ public class SecurityConsole
                 {
                     // Untrigger Window Alarm
                     Monitor.simulateWindowBreak(false);
+
+                } // if
+
+                //////////// option D1 ////////////
+
+                if ( Option.equals( "D1" ) )
+                {
+                    // Trigger Door Alarm
+                    Monitor.simulateDoorBreak(true);
+
+                } // if
+
+                //////////// option D0 ////////////
+
+                if ( Option.equals( "D0" ) )
+                {
+                    // Untrigger Door Alarm
+                    Monitor.simulateDoorBreak(false);
+
+                } // if
+
+                //////////// option M1 ////////////
+
+                if ( Option.equals( "M1" ) )
+                {
+                    // Trigger Motion Alarm
+                    Monitor.simulateMotionDetection(true);
+
+                } // if
+
+                //////////// option M0 ////////////
+
+                if ( Option.equals( "M0" ) )
+                {
+                    // Untrigger Motion Alarm
+                    Monitor.simulateMotionDetection(false);
 
                 } // if
 

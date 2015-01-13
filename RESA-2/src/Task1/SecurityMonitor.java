@@ -401,7 +401,72 @@ class SecurityMonitor extends Thread
 
         } // catch
 
+    }
+
+    public void simulateDoorBreak(boolean alarm){
+
+        mw.WriteMessage( "***Trigger DoorBreak Simulation***" );
+
+        // Here we create the stop message.
+
+        Message msg;
+
+        String cont;
+        if(alarm){
+            cont = "D1";
+        }else{
+            cont = "D0";
+        }
+
+        msg = new Message( (int) -7, cont );
+
+        // Here we send the message to the message manager.
+
+        try
+        {
+            em.SendMessage( msg );
+
+        } // try
+
+        catch (Exception e)
+        {
+            System.out.println("Error sending DoorBreak message:: " + e);
+
+        } // catch
 
     }
 
-} // ECSMonitor
+    public void simulateMotionDetection(boolean alarm){
+
+        mw.WriteMessage( "***Trigger MotionDetection Simulation***" );
+
+        // Here we create the stop message.
+
+        Message msg;
+
+        String cont;
+        if(alarm){
+            cont = "M1";
+        }else{
+            cont = "M0";
+        }
+
+        msg = new Message( (int) -8, cont );
+
+        // Here we send the message to the message manager.
+
+        try
+        {
+            em.SendMessage( msg );
+
+        } // try
+
+        catch (Exception e)
+        {
+            System.out.println("Error sending MotionDetection message:: " + e);
+
+        } // catch
+
+    }
+
+} // SecurityMonitor

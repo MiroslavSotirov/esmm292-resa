@@ -3,7 +3,7 @@ package Task1; /****************************************************************
 *
 * Description:
 *
-* This class simulates a device that alarms a guard. It polls the message manager for message
+* This class simulates a device sets the alarms. It polls the message manager for message
 * ids = 9 and reacts to them by turning on or off the alarm. The following command are valid
 * strings for controlling the humidifier and dehumidifier:
 *
@@ -279,15 +279,25 @@ class SecurityController
 
 				} // if
 
-				if (DoorState)
-				{
-					di.SetLampColorAndMessage("Door Break", 3);
+                if (DoorState)
+                {
+                    di.SetLampColorAndMessage("Door Break", 3);
 
-				} else {
+                } else {
 
-					di.SetLampColorAndMessage("---", 1);
+                    di.SetLampColorAndMessage("---", 1);
 
-				} // if
+                } // if
+
+                if (MotionState)
+                {
+                    mi.SetLampColorAndMessage("Motion Detected", 3);
+
+                } else {
+
+                    mi.SetLampColorAndMessage("---", 1);
+
+                } // if
 
 				try
 				{
