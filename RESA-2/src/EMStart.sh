@@ -1,0 +1,2 @@
+rmiregistry &
+java MessageManager
