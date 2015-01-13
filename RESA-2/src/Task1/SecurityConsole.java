@@ -73,6 +73,8 @@ public class SecurityConsole
 				System.out.println( "Select an Option: \n" );
 				System.out.println( "1: Arm the system" );
 				System.out.println( "2: Unarm the system" );
+                System.out.println( "W1: Activate Window Break" );
+                System.out.println( "W0: Deactivate Window Break" );
 				System.out.println( "X: Stop System\n" );
 				System.out.print( "\n>>>> " );
 				Option = UserInput.KeyboardReadString();
@@ -94,6 +96,24 @@ public class SecurityConsole
                     // Here we unarm the system
                     Monitor.ArmSystem(false);
                     SystemArmed = false;
+
+                } // if
+
+                //////////// option W1 ////////////
+
+                if ( Option.equals( "W1" ) )
+                {
+                    // Trigger Window Alarm
+                    Monitor.simulateWindowBreak(true);
+
+                } // if
+
+                //////////// option W0 ////////////
+
+                if ( Option.equals( "W0" ) )
+                {
+                    // Untrigger Window Alarm
+                    Monitor.simulateWindowBreak(false);
 
                 } // if
 

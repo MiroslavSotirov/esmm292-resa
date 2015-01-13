@@ -370,4 +370,38 @@ class SecurityMonitor extends Thread
 
 	} // Halt
 
+    public void simulateWindowBreak(boolean alarm){
+
+        mw.WriteMessage( "***Trigger WindowBreak Simulation***" );
+
+        // Here we create the stop message.
+
+        Message msg;
+
+        String cont;
+        if(alarm){
+            cont = "W1";
+        }else{
+            cont = "W0";
+        }
+
+        msg = new Message( (int) -6, cont );
+
+        // Here we send the message to the message manager.
+
+        try
+        {
+            em.SendMessage( msg );
+
+        } // try
+
+        catch (Exception e)
+        {
+            System.out.println("Error sending WindowBreak message:: " + e);
+
+        } // catch
+
+
+    }
+
 } // ECSMonitor
