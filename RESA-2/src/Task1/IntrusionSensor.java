@@ -1,35 +1,35 @@
 package Task1;
 
 /******************************************************************************************************************
- * File:SecurityController.java
+ * File:IntrusionSensor.java
  *
  * Description:
- * This controller shows the status of the window break, door break and motion detection alarms.
- * This is done by listening to messages with IDs 6, 7 and 8. The body of the messages are a boolean
- * that state whether the alarm is on or off.
- *
- * Parameters: IP address of the message manager (on command line). If blank, it is assumed that the message manager is
- * on the local machine.
+ * This class simulates an intrusion sensor. It polls the message manager for simulation trigger messages. If the sensor is armed the
+ * current status of the alarm is posted regularly. The sensor can be armed and disarmed by the security console. If the alarm is activated when the
+ * sensor is disarmed, the alarm is turned off.
  ******************************************************************************************************************/
 
-import InstrumentationPackage.Indicator;
 import InstrumentationPackage.MessageWindow;
 import MessagePackage.Message;
 import MessagePackage.MessageManagerInterface;
 import MessagePackage.MessageQueue;
 
-class SecurityController {
+public abstract class IntrusionSensor {
 
     public static final int DELAY = 2500;
-    public static final String NAME = "Security Controller";
+
+    private int msgId;
+    private String name;
 
     private MessageManagerInterface messageManager = null;
     private MessageWindow messageWindow = null;
-    private Indicator windowBreakIndicator = null;
-    private Indicator doorBreakIndicator = null;
-    private Indicator motionDetectionIndicator = null;
+    private boolean isArmed = true;
+    private boolean isActivated = false;
 
-    public SecurityController(String managerIP, float winPosX, float winPosY) {
+    public IntrusionSensor(String managerIP, int msgId, String name, float winPosX, float winPosY) {
+        this.msgId = msgId;
+        this.name = name;
+
         if (managerIP == null) {
 
             System.out.println("\n\nAttempting to register on the local machine...");
@@ -59,10 +59,7 @@ class SecurityController {
             throw new RuntimeException();
         } else {
 
-            messageWindow = new MessageWindow(NAME, winPosX, winPosY);
-            windowBreakIndicator = new Indicator("WindowBreak Alarm", messageWindow.GetX(), messageWindow.GetY() + messageWindow.Height(), 0);
-            doorBreakIndicator = new Indicator("DoorBreak Alarm", windowBreakIndicator.GetX() + windowBreakIndicator.Width(), windowBreakIndicator.GetY(), 0);
-            motionDetectionIndicator = new Indicator("MotionDetection Alarm", doorBreakIndicator.getX() + doorBreakIndicator.Width(), windowBreakIndicator.GetY(), 0);
+            messageWindow = new MessageWindow(name, winPosX, winPosY);
             messageWindow.WriteMessage("Registered with the message manager.");
             try {
                 messageWindow.WriteMessage("   Participant id: " + messageManager.GetMyId());
@@ -70,22 +67,22 @@ class SecurityController {
             } catch (Exception e) {
                 messageWindow.WriteMessage("Error:: " + e);
             }
+            messageWindow.WriteMessage("\nInitializing " + name + " Simulation::");
 
         }
     }
 
     /***************************************************************************
      * CONCRETE METHOD:: run 
-     * 
-     * Purpose: This methods implements the behavior of the sensor. The sensor continuously reads the messages out of
-     * the queue and reacts accordingly.
+     * Purpose: This methods implements the behavior of the sensor.
+     * The sensor continuously reads the messages out of the queue and reacts accordingly.
      *
      * Returns: none
      *
      * Exceptions: None
      *
      ***************************************************************************/
-    public void run() {
+    protected void run() {
         MessageQueue queue = null;
         boolean done = false;
 
@@ -102,15 +99,30 @@ class SecurityController {
             for (int i = 0; i < qlen; i++) {
                 Message msg = queue.GetMessage();
 
-                // Listen for messages of the intrusion sensors.
-                if (msg.GetMessageId() == 6) {
-                    updateAlarm("WindowBreak Alarm", windowBreakIndicator, Boolean.valueOf(msg.GetMessage()));
+                // If the ID of the message is the negation of the ID this sensor used,
+                // then the alarm is triggered by the console.
+                // This is for testing purposes.
+                if (msg.GetMessageId() == -msgId) {
+                    if (isArmed) {
+                        isActivated = Boolean.valueOf(msg.GetMessage());
+                    }
                 }
-                if (msg.GetMessageId() == 7) {
-                    updateAlarm("DoorBreak Alarm", doorBreakIndicator, Boolean.valueOf(msg.GetMessage()));
-                }
-                if (msg.GetMessageId() == 8) {
-                    updateAlarm("MotionDetection Alarm", motionDetectionIndicator, Boolean.valueOf(msg.GetMessage()));
+
+                // Message ID 10 means that the console arms or disarms the system.
+                // The value is given as boolean in the message body.
+                // As reaction, the sensor arms/disarms itself.
+                if (msg.GetMessageId() == 10) {
+                    boolean newValue = Boolean.valueOf(msg.GetMessage());
+                    if (isArmed && newValue == false && isActivated) {
+                        isActivated = false;
+                        postStatus();
+                    }
+                    if (newValue) {
+                        messageWindow.WriteMessage("Sensor armed.");
+                    } else {
+                        messageWindow.WriteMessage("Sensor disarmed.");
+                    }
+                    isArmed = newValue;
                 }
 
                 // If the messageID == 99 then this is a signal that the simulation
@@ -125,12 +137,14 @@ class SecurityController {
                         messageWindow.WriteMessage("Error unregistering: " + e);
                     }
                     messageWindow.WriteMessage("\n\nSimulation Stopped. \n");
-
-                    windowBreakIndicator.dispose();
-                    doorBreakIndicator.dispose();
-                    motionDetectionIndicator.dispose();
                 }
 
+            }
+
+            // Post the current status to the message manager, but only if the sensor is armed.
+            if (isArmed) {
+                postStatus();
+                messageWindow.WriteMessage("Current Status:: " + isActivated);
             }
 
             // Wait a while before entering the next iteration.
@@ -145,34 +159,19 @@ class SecurityController {
     }
 
     /***************************************************************************
-     * CONCRETE METHOD:: updateAlarm 
-     * 
-     * Purpose: This method updates the indicator for the alarm. If the alarm is off, the indicator is black.
-     * If the alarm is on, the indicator is red.
+     * CONCRETE METHOD:: postStatus 
+     * Purpose: This method posts the current status of the sensor to the specified message manager.
      *
      * Returns: none
      *
      * Exceptions: None
      *
      ***************************************************************************/
-    private void updateAlarm(String name, Indicator indicator, boolean isActivated) {
-        if (isActivated) {
-            messageWindow.WriteMessage("Received " + name + " on message");
-            indicator.SetLampColor(3);
-        } else {
-            messageWindow.WriteMessage("Received " + name + " off message");
-            indicator.SetLampColor(0);
+    private void postStatus() {
+        try {
+            messageManager.SendMessage(new Message(msgId, String.valueOf(isActivated)));
+        } catch (Exception e) {
+            System.out.println("Error Posting Status:: " + e);
         }
     }
-
-    public static void main(String args[]) {
-        SecurityController controller;
-        if (args.length == 0) {
-            controller = new SecurityController(null, 0.0f, 0.5f);
-        } else {
-            controller = new SecurityController(args[0], 0.0f, 0.5f);
-        }
-        controller.run();
-    }
-
 }

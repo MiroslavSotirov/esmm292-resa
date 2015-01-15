@@ -1,21 +1,13 @@
-package Task1; /******************************************************************************************************************
-* File:SecurityMonitor.java
-* Course: 17655
-* Project: Assignment A3
-* Copyright: Copyright (c) 2009 Carnegie Mellon University
-* Versions:
-*	1.0 March 2009 - Initial rewrite of original assignment 3 (ajl).
-*
-* Description:
-*
-* This class monitors the environmental control systems that control museum temperature and humidity. In addition to
-* monitoring the temperature and humidity, the ECSMonitor also allows a user to set the humidity and temperature
-* ranges to be maintained. If temperatures exceed those limits over/under alarm indicators are triggered.
-*
-* Parameters: IP address of the message manager (on command line). If blank, it is assumed that the message manager is
-* on the local machine.
-*
-******************************************************************************************************************/
+package Task1;
+
+/******************************************************************************************************************
+ * File:SecurityMonitor.java
+ *
+ * Description:
+ * This class monitors the security control systems that control museum intrusion detection. The system
+ * has a window break sensor, a door break sensor, a motion detection sensor and a security controller that
+ * indicates the alarms.
+ ******************************************************************************************************************/
 
 import InstrumentationPackage.Indicator;
 import InstrumentationPackage.MessageWindow;
@@ -23,450 +15,212 @@ import MessagePackage.Message;
 import MessagePackage.MessageManagerInterface;
 import MessagePackage.MessageQueue;
 
-class SecurityMonitor extends Thread
-{
-	private MessageManagerInterface em = null;	// Interface object to the message manager
-	private String MsgMgrIP = null;				// Message Manager IP address
-    boolean SystemArmed = true;                // States if the System is armed
-	boolean Registered = true;					// Signifies that this class is registered with an message manager.
-	MessageWindow mw = null;					// This is the message window
-	Indicator wi;								// WindowBreak indicator
-	Indicator di;								// DoorBreak indicator
-    Indicator mi;								// MotionDetection indicator
-
-	public SecurityMonitor()
-	{
-		// message manager is on the local system
-
-		try
-		{
-			// Here we create an message manager interface object. This assumes
-			// that the message manager is on the local machine
-
-			em = new MessageManagerInterface();
-
-		}
-
-		catch (Exception e)
-		{
-			System.out.println("SecurityMonitor::Error instantiating message manager interface: " + e);
-			Registered = false;
-
-		} // catch
-
-	} //Constructor
-
-	public SecurityMonitor(String MsgIpAddress)
-	{
-		// message manager is not on the local system
-
-		MsgMgrIP = MsgIpAddress;
-
-		try
-		{
-			// Here we create an message manager interface object. This assumes
-			// that the message manager is NOT on the local machine
-
-			em = new MessageManagerInterface( MsgMgrIP );
-		}
-
-		catch (Exception e)
-		{
-			System.out.println("SecurityMonitor::Error instantiating message manager interface: " + e);
-			Registered = false;
-
-		} // catch
-
-	} // Constructor
-
-	public void run()
-	{
-		Message Msg = null;				// Message object
-		MessageQueue eq = null;			// Message Queue
-		int MsgId = 0;					// User specified message ID
-        boolean WindowBreak = false;    // States if there is a broken window
-        boolean DoorBreak = false;      // States if there is a broken door
-        boolean MotionDetection = false;// States if there is a motion detected
-		int	Delay = 1000;				// The loop delay (1 second)
-		boolean Done = false;			// Loop termination flag
-		boolean ON = true;				// Used to turn on heaters, chillers, humidifiers, and dehumidifiers
-		boolean OFF = false;			// Used to turn off heaters, chillers, humidifiers, and dehumidifiers
-
-		if (em != null)
-		{
-			// Now we create the Security status and message panel
-			// Note that we set up two indicators that are initially yellow. This is
-			// because we do not know if the temperature/humidity is high/low.
-			// This panel is placed in the upper left hand corner and the status
-			// indicators are placed directly to the right, one on top of the other
-
-			mw = new MessageWindow("Security Monitoring Console", 0, 0);
-			wi = new Indicator ("Window", mw.GetX()+ mw.Width(), 0, 2);
-			di = new Indicator ("Door", mw.GetX()+ mw.Width(), (int)(mw.Height()/3), 2 );
-            mi = new Indicator ("Motion", mw.GetX()+ mw.Width(), (int)(mw.Height()/3)*2, 2 );
-
-			mw.WriteMessage( "Registered with the message manager." );
-
-	    	try
-	    	{
-				mw.WriteMessage("   Participant id: " + em.GetMyId() );
-				mw.WriteMessage("   Registration Time: " + em.GetRegistrationTime() );
-
-			} // try
-
-	    	catch (Exception e)
-			{
-				System.out.println("Error:: " + e);
-
-			} // catch
-
-			/********************************************************************
-			** Here we start the main simulation loop
-			*********************************************************************/
-
-			while ( !Done )
-			{
-				// Here we get our message queue from the message manager
-
-				try
-				{
-					eq = em.GetMessageQueue();
-
-				} // try
-
-				catch( Exception e )
-				{
-					mw.WriteMessage("Error getting message queue::" + e );
-
-				} // catch
-
-				// If there are messages in the queue, we read through them.
-				// We are looking for MessageIDs = 6,7, or 8.
-				// Message IDs of 3 are WindowBreaks
-				// Message IDs of 4 are DoorBreaks
-                // Message IDs of 5 are MotionDetections
-				// Note that we get all the messages at once... there is a 1
-				// second delay between samples,.. so the assumption is that there should
-				// only be a message at most. If there are more, it is the last message
-				// that will effect the status of the temperature and humidity controllers
-				// as it would in reality.
-
-				int qlen = eq.GetSize();
-
-				for ( int i = 0; i < qlen; i++ )
-				{
-					Msg = eq.GetMessage();
-
-                    if ( Msg.GetMessageId() == 6 ) // WindowBreak
-                    {
-                        try
-                        {
-                            WindowBreak = Boolean.valueOf(Msg.GetMessage()).booleanValue();
-
-                        } // try
-
-                        catch( Exception e )
-                        {
-                            mw.WriteMessage("Error reading WindowBreak: " + e);
-
-                        } // catch
-
-                    } // if
-
-                    if ( Msg.GetMessageId() == 7 ) // DoorBreak
-                    {
-                        try
-                        {
-                            DoorBreak = Boolean.valueOf(Msg.GetMessage()).booleanValue();
-
-                        } // try
-
-                        catch( Exception e )
-                        {
-                            mw.WriteMessage("Error reading DoorBreak: " + e);
-
-                        } // catch
-
-                    } // if
-
-                    if ( Msg.GetMessageId() == 8 ) // MotionDetection
-                    {
-                        try
-                        {
-                            MotionDetection = Boolean.valueOf(Msg.GetMessage()).booleanValue();
-
-                        } // try
-
-                        catch( Exception e )
-                        {
-                            mw.WriteMessage("Error reading WindowBreak: " + e);
-
-                        } // catch
-
-                    } // if
-
-
-					// If the message ID == 99 then this is a signal that the simulation
-					// is to end. At this point, the loop termination flag is set to
-					// true and this process unregisters from the message manager.
-
-					if ( Msg.GetMessageId() == 99 )
-					{
-						Done = true;
-
-						try
-						{
-							em.UnRegister();
-
-				    	} // try
-
-				    	catch (Exception e)
-				    	{
-							mw.WriteMessage("Error unregistering: " + e);
-
-				    	} // catch
-
-				    	mw.WriteMessage( "\n\nSimulation Stopped. \n");
-
-						// Get rid of the indicators. The message panel is left for the
-						// user to exit so they can see the last message posted.
-
-						wi.dispose();
-						di.dispose();
-                        mi.dispose();
-
-					} // if
-
-				} // for
-
-                if(SystemArmed){
-
-                    mw.WriteMessage("WindowBreak:: " + WindowBreak + "  DoorBreak:: " + DoorBreak + "  MotionDetection:: " + MotionDetection);
-
-                    if (WindowBreak)
-                    {
-                        wi.SetLampColorAndMessage("ALARM", 3);
-                    } else {
-                        wi.SetLampColorAndMessage("---", 1);
-                    } // if
-
-                    if (DoorBreak)
-                    {
-                        di.SetLampColorAndMessage("ALARM", 3);
-                    } else {
-                        di.SetLampColorAndMessage("---", 1);
-                    } // if
-
-                    if (MotionDetection)
-                    {
-                        mi.SetLampColorAndMessage("ALARM", 3);
-                    } else {
-                        mi.SetLampColorAndMessage("---", 1);
-                    } // if
-
-                }else {
-                    wi.SetLampColorAndMessage("NOT ARMED", 0);
-                    di.SetLampColorAndMessage("NOT ARMED", 0);
-                    mi.SetLampColorAndMessage("NOT ARMED", 0);
+class SecurityMonitor extends Thread {
+
+    public static final int DELAY = 2500;
+    public static final String NAME = "Security Monitor";
+
+    private MessageManagerInterface messageManager = null;
+    private MessageWindow messageWindow = null;
+
+    private boolean systemArmed = true;
+    private Indicator armedIndicator;
+    private boolean windowBreakAlarm = false;
+    private boolean doorBreakAlarm = false;
+    private boolean motionDetectionAlarm = false;
+
+    public SecurityMonitor() {
+        this(null);
+    }
+
+    public SecurityMonitor(String managerIP) {
+        if (managerIP == null) {
+
+            System.out.println("\n\nAttempting to register on the local machine...");
+            try {
+                // Here we create an message manager interface object. This assumes
+                // that the message manager is on the local machine
+                messageManager = new MessageManagerInterface();
+            } catch (Exception e) {
+                System.out.println("Error instantiating message manager interface: " + e);
+            }
+
+        } else {
+
+            System.out.println("\n\nAttempting to register on the machine:: " + managerIP);
+            try {
+                // Here we create an message manager interface object. This assumes
+                // that the message manager is NOT on the local machine
+                messageManager = new MessageManagerInterface(managerIP);
+            } catch (Exception e) {
+                System.out.println("Error instantiating message manager interface: " + e);
+            }
+
+        }
+
+        if (messageManager == null) {
+            System.out.println("Unable to register with the message manager.\n\n");
+            throw new RuntimeException();
+        } else {
+
+            messageWindow = new MessageWindow(NAME, 0.0f, 0.0f);
+            armedIndicator = new Indicator("Armed Indicator", messageWindow.GetX(), messageWindow.GetX() + messageWindow.Height(), 1);
+            messageWindow.WriteMessage("Registered with the message manager.");
+            try {
+                messageWindow.WriteMessage("   Participant id: " + messageManager.GetMyId());
+                messageWindow.WriteMessage("   Registration Time: " + messageManager.GetRegistrationTime());
+            } catch (Exception e) {
+                messageWindow.WriteMessage("Error:: " + e);
+            }
+
+        }
+    }
+
+    /***************************************************************************
+     * CONCRETE METHOD:: run
+     * 
+     * Purpose: This methods implements the behavior of the sensor. The sensor continuously reads the messages out of the queue and reacts
+     * accordingly.
+     *
+     * Returns: none
+     *
+     * Exceptions: None
+     *
+     ***************************************************************************/
+    public void run() {
+        MessageQueue queue = null;
+        boolean done = false;
+
+        messageWindow.WriteMessage("Beginning Simulation... ");
+
+        while (!done) {
+            try {
+                queue = messageManager.GetMessageQueue();
+            } catch (Exception e) {
+                messageWindow.WriteMessage("Error getting message queue::" + e);
+            }
+
+            int qlen = queue.GetSize();
+            for (int i = 0; i < qlen; i++) {
+                Message msg = queue.GetMessage();
+
+                // Listen to the messages of the intrusion sensors and print a message if the status changed.
+                if (msg.GetMessageId() == 6) {
+                    windowBreakAlarm = recieveAlarmStatus("WindowBreak Alarm", windowBreakAlarm, Boolean.valueOf(msg.GetMessage()));
+                }
+                if (msg.GetMessageId() == 7) {
+                    doorBreakAlarm = recieveAlarmStatus("DoorBreak Alarm", doorBreakAlarm, Boolean.valueOf(msg.GetMessage()));
+                }
+                if (msg.GetMessageId() == 8) {
+                    motionDetectionAlarm = recieveAlarmStatus("MotionDetection Alarm", motionDetectionAlarm, Boolean.valueOf(msg.GetMessage()));
                 }
 
+                // If the messageID == 99 then this is a signal that the simulation
+                // is to end. At this point, the loop termination flag is set to
+                // true and this process unregisters from the message manager.
+                if (msg.GetMessageId() == 99) {
+                    done = true;
 
-				// This delay slows down the sample rate to Delay milliseconds
+                    try {
+                        messageManager.UnRegister();
+                    } catch (Exception e) {
+                        messageWindow.WriteMessage("Error unregistering: " + e);
+                    }
+                    messageWindow.WriteMessage("\n\nSimulation Stopped. \n");
 
-				try
-				{
-					Thread.sleep( Delay );
-				} // try
+                    armedIndicator.dispose();
+                }
 
-				catch( Exception e )
-				{
-					System.out.println( "Sleep error:: " + e );
+            }
 
-				} // catch
+            // Wait a while before entering the next iteration.
+            try {
+                Thread.sleep(DELAY);
+            } catch (Exception e) {
+                messageWindow.WriteMessage("Sleep error:: " + e);
+            }
 
-			} // while
-
-		} else {
-
-			System.out.println("Unable to register with the message manager.\n\n" );
-
-		} // if
-
-	} // main
-
-	/***************************************************************************
-	* CONCRETE METHOD:: IsRegistered
-	* Purpose: This method returns the registered status
-	*
-	* Arguments: none
-	*
-	* Returns: boolean true if registered, false if not registered
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-
-	public boolean IsRegistered()
-	{
-		return( Registered );
-
-	} // SetTemperatureRange
-
-	/***************************************************************************
-	* CONCRETE METHOD:: ArmSystem
-	* Purpose: This method sets the SystemArmed status
-	*
-	* Arguments: boolean arm - True for Arming the System, False for Unarming the System
-	*
-	* Returns: none
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-
-	public void ArmSystem(boolean arm )
-	{
-		SystemArmed = arm;
-		mw.WriteMessage( "***System Arm Status set to::" + SystemArmed +"***" );
-
-	} // SetTemperatureRange
-
-	/***************************************************************************
-	* CONCRETE METHOD:: Halt
-	* Purpose: This method posts an message that stops the security
-	*		   system.
-	*
-	* Arguments: none
-	*
-	* Returns: none
-	*
-	* Exceptions: Posting to message manager exception
-	*
-	***************************************************************************/
-
-	public void Halt()
-	{
-		mw.WriteMessage( "***HALT MESSAGE RECEIVED - SHUTTING DOWN SYSTEM***" );
-
-		// Here we create the stop message.
-
-		Message msg;
-
-		msg = new Message( (int) 99, "XXX" );
-
-		// Here we send the message to the message manager.
-
-		try
-		{
-			em.SendMessage( msg );
-
-		} // try
-
-		catch (Exception e)
-		{
-			System.out.println("Error sending halt message:: " + e);
-
-		} // catch
-
-	} // Halt
-
-    public void simulateWindowBreak(boolean alarm){
-
-        mw.WriteMessage( "***Trigger WindowBreak Simulation***" );
-
-        // Here we create the stop message.
-
-        Message msg;
-
-        String cont;
-        if(alarm){
-            cont = "W1";
-        }else{
-            cont = "W0";
         }
-
-        msg = new Message( (int) -6, cont );
-
-        // Here we send the message to the message manager.
-
-        try
-        {
-            em.SendMessage( msg );
-
-        } // try
-
-        catch (Exception e)
-        {
-            System.out.println("Error sending WindowBreak message:: " + e);
-
-        } // catch
 
     }
 
-    public void simulateDoorBreak(boolean alarm){
+    private boolean recieveAlarmStatus(String alarmName, boolean oldValue, boolean newValue) {
+        try {
+            if (newValue != oldValue) {
+                if (newValue) {
+                    messageWindow.WriteMessage(alarmName + " went on.");
+                } else {
+                    messageWindow.WriteMessage(alarmName + " went off.");
+                }
+            }
+            return newValue;
+        } catch (Exception e) {
+            messageWindow.WriteMessage("Error reading WindowBreak: " + e);
+            return oldValue;
+        }
+    }
 
-        mw.WriteMessage( "***Trigger DoorBreak Simulation***" );
-
-        // Here we create the stop message.
-
-        Message msg;
-
-        String cont;
-        if(alarm){
-            cont = "D1";
-        }else{
-            cont = "D0";
+    public void ArmSystem(boolean arm) {
+        systemArmed = arm;
+        messageWindow.WriteMessage("***System Arm Status set to::" + systemArmed + "***");
+        if (arm) {
+            armedIndicator.SetLampColorAndMessage("Armed", 1);
+        } else {
+            armedIndicator.SetLampColorAndMessage("Disarmed", 0);
         }
 
-        msg = new Message( (int) -7, cont );
-
-        // Here we send the message to the message manager.
-
-        try
-        {
-            em.SendMessage( msg );
-
-        } // try
-
-        catch (Exception e)
-        {
-            System.out.println("Error sending DoorBreak message:: " + e);
-
-        } // catch
+        try {
+            messageManager.SendMessage(new Message(10, String.valueOf(arm)));
+        } catch (Exception e) {
+            System.out.println("Error sending message:: " + e);
+        }
 
     }
 
-    public void simulateMotionDetection(boolean alarm){
-
-        mw.WriteMessage( "***Trigger MotionDetection Simulation***" );
-
-        // Here we create the stop message.
-
-        Message msg;
-
-        String cont;
-        if(alarm){
-            cont = "M1";
-        }else{
-            cont = "M0";
-        }
-
-        msg = new Message( (int) -8, cont );
-
-        // Here we send the message to the message manager.
-
-        try
-        {
-            em.SendMessage( msg );
-
-        } // try
-
-        catch (Exception e)
-        {
-            System.out.println("Error sending MotionDetection message:: " + e);
-
-        } // catch
-
+    public void simulateWindowBreak(boolean activate) {
+        simulateAlarm("WindowBreak", -6, activate);
     }
 
-} // SecurityMonitor
+    public void simulateDoorBreak(boolean activate) {
+        simulateAlarm("DorBreak", -7, activate);
+    }
+
+    public void simulateMotionDetection(boolean activate) {
+        simulateAlarm("MotionDetection", -8, activate);
+    }
+
+    public void simulateAlarm(String alarmName, int msgID, boolean activate) {
+        if (activate) {
+            messageWindow.WriteMessage("***Trigger MotionDetection Simulation: On***");
+        } else {
+            messageWindow.WriteMessage("***Trigger MotionDetection Simulation: Off***");
+        }
+        try {
+            messageManager.SendMessage(new Message(msgID, String.valueOf(activate)));
+        } catch (Exception e) {
+            System.out.println("Error sending message:: " + e);
+        }
+    }
+    
+    public boolean isArmed(){
+        return systemArmed;
+    }
+
+    /***************************************************************************
+     * CONCRETE METHOD:: Halt
+     * 
+     * Purpose: This method posts an message that stops the security system.
+     *
+     * Exceptions: Posting to message manager exception
+     *
+     ***************************************************************************/
+    public void Halt() {
+        messageWindow.WriteMessage("***HALT MESSAGE RECEIVED - SHUTTING DOWN SYSTEM***");
+        try {
+            messageManager.SendMessage(new Message((int) 99, "XXX"));
+        } catch (Exception e) {
+            System.out.println("Error sending halt message:: " + e);
+        }
+    }
+
+}
