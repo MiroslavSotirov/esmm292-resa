@@ -3,6 +3,9 @@
 // This class contains methods that allow the callers do the
 // following:
 //
+//   public boolean KeyboardLineReady():
+//      Allows the caller to test if a string can be read from the keyboard.
+//
 //   public String KeyboardReadString():
 //      Allows the caller to read a string from the keyboard.
 //
@@ -28,6 +31,33 @@ import java.io.*;
 
 public class Termio
 {
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // This method returns true if a line can be read
+    // from the keyboard
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    public boolean KeyboardLineReady()
+    {
+       BufferedReader MyReader =
+       new BufferedReader(new InputStreamReader(System.in));
+
+       try {
+
+           return MyReader.ready();
+
+       } // try
+
+       catch (IOException IOError)
+       {
+
+           System.out.println( "Read Error in Termio.KeyboardLineReady method" );
+
+       } // catch
+       
+       return false;
+
+    } // KeyboardLineReady
+    
    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    // This method reads a string from the keyboard and
    // returns it to the caller

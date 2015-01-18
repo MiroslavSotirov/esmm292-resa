@@ -1,12 +1,11 @@
-package Task1;
+package Task2;
 
 /******************************************************************************************************************
- * File:IntrusionSensor.java
+ * File:SmokeSensor.java
  *
- * Description:
- * This class simulates an intrusion sensor. It polls the message manager for simulation trigger messages. If the sensor is armed the
- * current status of the alarm is posted regularly. The sensor can be armed and disarmed by the security console. If the alarm is activated when the
- * sensor is disarmed, the alarm is turned off.
+ * Description: The smoke sensor posts on the message manager at a periodic rate
+ * if detects smoke or not. For simulation purposes the sensor the smoke can be detection
+ * can be triggered with the console by using the negation of the message ID.   
  ******************************************************************************************************************/
 
 import InstrumentationPackage.MessageWindow;
@@ -14,21 +13,18 @@ import MessagePackage.Message;
 import MessagePackage.MessageManagerInterface;
 import MessagePackage.MessageQueue;
 
-public abstract class IntrusionSensor {
+public class SmokeSensor {
 
     public static final int DELAY = 2500;
 
-    private int msgId;
-    private String name;
+    public static final int MSG_ID = 11;
+    public static final String NAME = "Smoke Sensor";
 
     private MessageManagerInterface messageManager = null;
     private MessageWindow messageWindow = null;
-    private boolean isArmed = true;
-    private boolean isActivated = false;
+    private boolean smokeDetected = false;
 
-    public IntrusionSensor(String managerIP, int msgId, String name, float winPosX, float winPosY) {
-        this.msgId = msgId;
-        this.name = name;
+    public SmokeSensor(String managerIP, float winPosX, float winPosY) {
 
         if (managerIP == null) {
 
@@ -59,7 +55,7 @@ public abstract class IntrusionSensor {
             throw new RuntimeException();
         } else {
 
-            messageWindow = new MessageWindow(name, winPosX, winPosY);
+            messageWindow = new MessageWindow(NAME, winPosX, winPosY);
             messageWindow.WriteMessage("Registered with the message manager.");
             try {
                 messageWindow.WriteMessage("   Participant id: " + messageManager.GetMyId());
@@ -67,7 +63,7 @@ public abstract class IntrusionSensor {
             } catch (Exception e) {
                 messageWindow.WriteMessage("Error:: " + e);
             }
-            messageWindow.WriteMessage("\nInitializing " + name + " Simulation::");
+            messageWindow.WriteMessage("\nInitializing " + NAME + " Simulation::");
 
         }
     }
@@ -102,27 +98,8 @@ public abstract class IntrusionSensor {
                 // If the ID of the message is the negation of the ID this sensor used,
                 // then the alarm is triggered by the console.
                 // This is for testing purposes.
-                if (msg.GetMessageId() == -msgId) {
-                    if (isArmed) {
-                        isActivated = Boolean.valueOf(msg.GetMessage());
-                    }
-                }
-
-                // Message ID 10 means that the console arms or disarms the system.
-                // The value is given as boolean in the message body.
-                // As reaction, the sensor arms/disarms itself.
-                if (msg.GetMessageId() == 10) {
-                    boolean newValue = Boolean.valueOf(msg.GetMessage());
-                    if (isArmed && newValue == false && isActivated) {
-                        isActivated = false;
-                        postStatus();
-                    }
-                    if (newValue) {
-                        messageWindow.WriteMessage("Sensor armed.");
-                    } else {
-                        messageWindow.WriteMessage("Sensor disarmed.");
-                    }
-                    isArmed = newValue;
+                if (msg.GetMessageId() == -MSG_ID) {
+                    smokeDetected = Boolean.valueOf(msg.GetMessage());
                 }
 
                 // If the messageID == 99 then this is a signal that the simulation
@@ -141,11 +118,9 @@ public abstract class IntrusionSensor {
 
             }
 
-            // Post the current status to the message manager, but only if the sensor is armed.
-            if (isArmed) {
-                postStatus();
-                messageWindow.WriteMessage("Current Status:: " + isActivated);
-            }
+            // Post the current status to the message manager.
+            postStatus();
+            messageWindow.WriteMessage("Current Status:: " + smokeDetected);
 
             // Wait a while before entering the next iteration.
             try {
@@ -169,9 +144,20 @@ public abstract class IntrusionSensor {
      ***************************************************************************/
     private void postStatus() {
         try {
-            messageManager.SendMessage(new Message(msgId, String.valueOf(isActivated)));
+            messageManager.SendMessage(new Message(MSG_ID, String.valueOf(smokeDetected)));
         } catch (Exception e) {
             System.out.println("Error Posting Status:: " + e);
         }
     }
+
+    public static void main(String args[]) {
+        SmokeSensor sensor;
+        if (args.length == 0) {
+            sensor = new SmokeSensor(null, 0.5f, 0.0f);
+        } else {
+            sensor = new SmokeSensor(args[0], 0.5f, 0.0f);
+        }
+        sensor.run();
+    }
+    
 }

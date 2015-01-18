@@ -1,12 +1,10 @@
-package Task1;
+package Task2;
 
 /******************************************************************************************************************
- * File:IntrusionSensor.java
+ * File:SecurityMonitor.java
  *
  * Description:
- * This class simulates an intrusion sensor. It polls the message manager for simulation trigger messages. If the sensor is armed the
- * current status of the alarm is posted regularly. The sensor can be armed and disarmed by the security console. If the alarm is activated when the
- * sensor is disarmed, the alarm is turned off.
+ * This class monitors the security control systems.
  ******************************************************************************************************************/
 
 import InstrumentationPackage.MessageWindow;
@@ -14,22 +12,22 @@ import MessagePackage.Message;
 import MessagePackage.MessageManagerInterface;
 import MessagePackage.MessageQueue;
 
-public abstract class IntrusionSensor {
+class SecurityMonitor extends Thread {
 
     public static final int DELAY = 2500;
-
-    private int msgId;
-    private String name;
+    public static final String NAME = "Security Monitor";
 
     private MessageManagerInterface messageManager = null;
     private MessageWindow messageWindow = null;
-    private boolean isArmed = true;
-    private boolean isActivated = false;
 
-    public IntrusionSensor(String managerIP, int msgId, String name, float winPosX, float winPosY) {
-        this.msgId = msgId;
-        this.name = name;
+    private boolean sprinklerTriggered = false;
+    private boolean sprinklerOn = false;
 
+    public SecurityMonitor() {
+        this(null);
+    }
+
+    public SecurityMonitor(String managerIP) {
         if (managerIP == null) {
 
             System.out.println("\n\nAttempting to register on the local machine...");
@@ -59,7 +57,7 @@ public abstract class IntrusionSensor {
             throw new RuntimeException();
         } else {
 
-            messageWindow = new MessageWindow(name, winPosX, winPosY);
+            messageWindow = new MessageWindow(NAME, 0.0f, 0.0f);
             messageWindow.WriteMessage("Registered with the message manager.");
             try {
                 messageWindow.WriteMessage("   Participant id: " + messageManager.GetMyId());
@@ -67,22 +65,22 @@ public abstract class IntrusionSensor {
             } catch (Exception e) {
                 messageWindow.WriteMessage("Error:: " + e);
             }
-            messageWindow.WriteMessage("\nInitializing " + name + " Simulation::");
 
         }
     }
 
     /***************************************************************************
-     * CONCRETE METHOD:: run 
-     * Purpose: This methods implements the behavior of the sensor.
-     * The sensor continuously reads the messages out of the queue and reacts accordingly.
+     * CONCRETE METHOD:: run
+     * 
+     * Purpose: This methods implements the behavior of the sensor. The sensor continuously reads the messages out of the queue and reacts
+     * accordingly.
      *
      * Returns: none
      *
      * Exceptions: None
      *
      ***************************************************************************/
-    protected void run() {
+    public void run() {
         MessageQueue queue = null;
         boolean done = false;
 
@@ -99,30 +97,18 @@ public abstract class IntrusionSensor {
             for (int i = 0; i < qlen; i++) {
                 Message msg = queue.GetMessage();
 
-                // If the ID of the message is the negation of the ID this sensor used,
-                // then the alarm is triggered by the console.
-                // This is for testing purposes.
-                if (msg.GetMessageId() == -msgId) {
-                    if (isArmed) {
-                        isActivated = Boolean.valueOf(msg.GetMessage());
+                // Listen to the messages of the fire alarm.
+                if (msg.GetMessageId() == 12) {
+                    boolean fireAlarmOn = Boolean.valueOf(msg.GetMessage());
+                    if(fireAlarmOn && !sprinklerOn){
+                        sprinklerTriggered = true;
                     }
                 }
 
-                // Message ID 10 means that the console arms or disarms the system.
-                // The value is given as boolean in the message body.
-                // As reaction, the sensor arms/disarms itself.
-                if (msg.GetMessageId() == 10) {
-                    boolean newValue = Boolean.valueOf(msg.GetMessage());
-                    if (isArmed && newValue == false && isActivated) {
-                        isActivated = false;
-                        postStatus();
-                    }
-                    if (newValue) {
-                        messageWindow.WriteMessage("Sensor armed.");
-                    } else {
-                        messageWindow.WriteMessage("Sensor disarmed.");
-                    }
-                    isArmed = newValue;
+                // Listen to the messages of the sprinkler.
+                if (msg.GetMessageId() == 13) {
+                    sprinklerOn = Boolean.valueOf(msg.GetMessage());
+                    sprinklerTriggered = false;
                 }
 
                 // If the messageID == 99 then this is a signal that the simulation
@@ -141,12 +127,6 @@ public abstract class IntrusionSensor {
 
             }
 
-            // Post the current status to the message manager, but only if the sensor is armed.
-            if (isArmed) {
-                postStatus();
-                messageWindow.WriteMessage("Current Status:: " + isActivated);
-            }
-
             // Wait a while before entering the next iteration.
             try {
                 Thread.sleep(DELAY);
@@ -158,20 +138,57 @@ public abstract class IntrusionSensor {
 
     }
 
-    /***************************************************************************
-     * CONCRETE METHOD:: postStatus 
-     * Purpose: This method posts the current status of the sensor to the message manager.
-     *
-     * Returns: none
-     *
-     * Exceptions: None
-     *
-     ***************************************************************************/
-    private void postStatus() {
+    public void simulateSmoke(boolean activate) {
+        if (activate) {
+            messageWindow.WriteMessage("***Trigger Smoke Simulation: On***");
+        } else {
+            messageWindow.WriteMessage("***Trigger Smoke Simulation: Off***");
+        }
         try {
-            messageManager.SendMessage(new Message(msgId, String.valueOf(isActivated)));
+            messageManager.SendMessage(new Message(-11, String.valueOf(activate)));
         } catch (Exception e) {
-            System.out.println("Error Posting Status:: " + e);
+            System.out.println("Error sending message:: " + e);
         }
     }
+
+    public void startSprinkler(boolean activate) {
+        if (activate) {
+            messageWindow.WriteMessage("***Activate Sprinkler On***");
+        } else {
+            messageWindow.WriteMessage("***Activate Sprinkler Off***");
+        }
+        try {
+            messageManager.SendMessage(new Message(-13, String.valueOf(activate)));
+            sprinklerOn = activate;
+            sprinklerTriggered = false;
+        } catch (Exception e) {
+            System.out.println("Error sending message:: " + e);
+        }
+    }
+    
+    public boolean isSprinklerTriggered(){
+        return sprinklerTriggered;
+    }
+    
+    public boolean isSprinklerOn(){
+        return sprinklerOn;
+    }
+
+    /***************************************************************************
+     * CONCRETE METHOD:: Halt
+     * 
+     * Purpose: This method posts an message that stops the security system.
+     *
+     * Exceptions: Posting to message manager exception
+     *
+     ***************************************************************************/
+    public void Halt() {
+        messageWindow.WriteMessage("***HALT MESSAGE RECEIVED - SHUTTING DOWN SYSTEM***");
+        try {
+            messageManager.SendMessage(new Message((int) 99, "XXX"));
+        } catch (Exception e) {
+            System.out.println("Error sending halt message:: " + e);
+        }
+    }
+
 }
