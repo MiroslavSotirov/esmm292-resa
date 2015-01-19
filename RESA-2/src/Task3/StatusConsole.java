@@ -114,7 +114,10 @@ public class StatusConsole
 				printID(Constants.ID_HUMIDITY_CONTROLLER, defects);
 				printID(Constants.ID_TEMP_CONTROLLER, defects);
 				printID(Constants.ID_TEMP_SENSOR, defects);
-				
+				printID(Constants.ID_FIRE_ALARM_CONTROLLER, defects);
+				printID(Constants.ID_SPRINKLER_CONTROLLER, defects);
+				printID(Constants.ID_SMOKE_SENSOR, defects);
+
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
