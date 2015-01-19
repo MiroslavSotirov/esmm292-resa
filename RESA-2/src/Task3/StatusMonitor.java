@@ -16,46 +16,54 @@ class StatusMonitor extends Thread
 	private String MsgMgrIP = null;				// Message Manager IP address
 	boolean Registered = true;					// Signifies that this class is registered with an message manager.
 	MessageWindow mw = null;					// This is the message window
-	//	Indicator ti;								// Temperature indicator
-	//	Indicator hi;								// Humidity indicator
 	HashMap<Integer, Long> messages = new HashMap<Integer, Long>();
-	private static final int TIMEOUT = 2000;	// Timeout at which point a sensor is considered defect
+	private static final int TIMEOUT = 4000;	// Timeout at which point a sensor is considered defect
 
 	public List<Integer> getDefectComponents(){
-		long now = System.currentTimeMillis();
 		ArrayList<Integer> defect = new ArrayList<Integer>();
-		if (isSensorDefect(Constants.ID_TEMP_SENSOR, now)){
+		if (isSensorDefect(Constants.ID_TEMP_SENSOR)){
 			defect.add(Constants.ID_TEMP_SENSOR);
 		}
-		if (isSensorDefect(Constants.ID_HUMIDITY_SENSOR, now)){
+		if (isSensorDefect(Constants.ID_HUMIDITY_SENSOR)){
 			defect.add(Constants.ID_HUMIDITY_SENSOR);
 		}
-		if (isSensorDefect(Constants.ID_DOORBREAK_SENSOR, now)){
+		if (isSensorDefect(Constants.ID_DOORBREAK_SENSOR)){
 			defect.add(Constants.ID_DOORBREAK_SENSOR);
 		}
-		if (isSensorDefect(Constants.ID_WINDOWBREAK_SENSOR, now)){
+		if (isSensorDefect(Constants.ID_WINDOWBREAK_SENSOR)){
 			defect.add(Constants.ID_WINDOWBREAK_SENSOR);
 		}
-		if (isSensorDefect(Constants.ID_MOTION_SENSOR, now)){
+		if (isSensorDefect(Constants.ID_MOTION_SENSOR)){
 			defect.add(Constants.ID_MOTION_SENSOR);
 		}
-		if (isControllerDefect(Constants.ID_HUMIDITY_CONTROLLER, now)){
+		if (isControllerDefect(Constants.ID_HUMIDITY_CONTROLLER)){
 			defect.add(Constants.ID_HUMIDITY_CONTROLLER);
 		}
-		if (isControllerDefect(Constants.ID_TEMP_CONTROLLER, now)){
+		if (isControllerDefect(Constants.ID_TEMP_CONTROLLER)){
 			defect.add(Constants.ID_TEMP_CONTROLLER);
+		}
+		
+		// is named as controller, behaves like a sensor
+		if (isSensorDefect(Constants.ID_FIRE_ALARM_CONTROLLER)){
+			defect.add(Constants.ID_FIRE_ALARM_CONTROLLER);
+		}
+		if (isSensorDefect(Constants.ID_SMOKE_SENSOR)){
+			defect.add(Constants.ID_SMOKE_SENSOR);
+		}
+		if (isControllerDefect(Constants.ID_SPRINKLER_CONTROLLER)){
+			defect.add(Constants.ID_SPRINKLER_CONTROLLER);
 		}
 		return defect;
 	}
 
-	private boolean isSensorDefect(int id, long now){
+	private boolean isSensorDefect(int id){
 		Long l = messages.get(id);
 		if (l == null)
 			return true;
-		return (now - l) > TIMEOUT;
+		return (System.currentTimeMillis() - l) > TIMEOUT;
 	}
 	
-	private boolean isControllerDefect(int id, long now){
+	private boolean isControllerDefect(int id){
 		Long l = messages.get(id);
 		// controllers are silent until used
 		if (l == null)
@@ -65,7 +73,7 @@ class StatusMonitor extends Thread
 		if (l2 == null)
 			l2 = 0L;
 		boolean wasReplied = (l <  l2);
-		boolean inTimeout = (now - l) > TIMEOUT;
+		boolean inTimeout = (System.currentTimeMillis() - l) > TIMEOUT;
 		return  !wasReplied && inTimeout;
 	}
 
@@ -119,9 +127,7 @@ class StatusMonitor extends Thread
 		Message Msg = null;				// Message object
 		MessageQueue eq = null;			// Message Queue
 		int MsgId = 0;					// User specified message ID
-		float CurrentTemperature = 0;	// Current temperature as reported by the temperature sensor
-		float CurrentHumidity= 0;		// Current relative humidity as reported by the humidity sensor
-		int	Delay = 1000;				// The loop delay (1 second)
+		int	Delay = 100;				// The loop delay (0.1 second) to get a better reading when the message is sent
 		boolean Done = false;			// Loop termination flag
 
 		if (em != null)

@@ -21,7 +21,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import TermioPackage.*;
-import MessagePackage.*;
 
 public class StatusConsole
 {
@@ -53,6 +52,15 @@ public class StatusConsole
 			break;
 		case (Constants.ID_TEMP_SENSOR):
 			System.out.println("Temperature Sensor. Checks teperature in °F.");
+			break;
+		case (Constants.ID_FIRE_ALARM_CONTROLLER):
+			System.out.println("Fire alarm controller. Controls the smoke sensor and sprinkler controller.");
+			break;
+		case (Constants.ID_SPRINKLER_CONTROLLER):
+			System.out.println("Sprinkler controller. Controls sprinkler.");
+			break;
+		case (Constants.ID_SMOKE_SENSOR):
+			System.out.println("Smoke sensor. Checks whether smoke is present.");
 			break;
 		default: 
 			break;
