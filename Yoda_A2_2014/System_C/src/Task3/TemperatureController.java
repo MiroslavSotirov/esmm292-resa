@@ -1,4 +1,4 @@
-package Task3_2;
+package Task3;
 
 import InstrumentationPackage.Indicator;
 import MessagePackage.Message;
