@@ -7,4 +7,4 @@ The input may contain measurements for velocity, pressure and attitude (Ids 1, 3
 The input must not contain any other measurements.
 
 System A will produce a csv output in an output file called "OutputA.dat" with 
-time, temperature (°C), altitude (m)
+time, temperature (C), altitude (m)

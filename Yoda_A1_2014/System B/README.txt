@@ -7,6 +7,6 @@ The input may contain measurements for velocity and attitude (Ids 1 and 5) but t
 The input must not contain any other measurements.
 
 System B will produce a csv output in an output file called "OutputB.dat" with 
-time, temperature (°C), altitude (m), pressure (psi)
+time, temperature (C), altitude (m), pressure (psi)
 extrapolated pressure measurements are denoted with an * and the original value and the corresponding timestamp are retained in "Wildpoints.dat" with
 time, pressure (psi)
